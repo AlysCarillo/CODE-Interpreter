@@ -21,6 +21,7 @@ RPAREN : ')';
 COMMA : ',';
 DOT : '.';
 COLON : ':';
+ASSIGN : '=';
 SEMICOLON : ';';
 MULTIPLY : '*';
 DIVIDE : '/';
@@ -59,7 +60,7 @@ WHITESPACE : [ \t\r\n] -> skip;
 
 program : BEGIN_CODE variableDeclaration* statement* END_CODE;
 
-variableDeclaration : dataType variableList SEMICOLON;
+variableDeclaration : dataType IDENTIFIER ASSIGN expression NEWLINE?;
 
 dataType : INT_TYPE | CHAR_TYPE | BOOL_TYPE | FLOAT_TYPE;
 
@@ -72,9 +73,9 @@ statement : displayStatement
           | assignmentStatement
           | SEMICOLON;
 
-displayStatement : DISPLAY expression SEMICOLON;
+displayStatement : DISPLAY expression;
 
-scanStatement : SCAN COLON variableList SEMICOLON;
+scanStatement : SCAN COLON variableList NEWLINE?;
 
 ifStatement : IF LPAREN boolExpression RPAREN BEGIN statement* END
             (ELSE IF LPAREN boolExpression RPAREN BEGIN statement* END)*
@@ -82,7 +83,7 @@ ifStatement : IF LPAREN boolExpression RPAREN BEGIN statement* END
 
 whileStatement : WHILE LPAREN boolExpression RPAREN BEGIN statement* END;
 
-assignmentStatement : IDENTIFIER COLON expression SEMICOLON;
+assignmentStatement : IDENTIFIER COLON expression NEWLINE?;
 
 expression : boolExpression | arithmeticExpression;
 
