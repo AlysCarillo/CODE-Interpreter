@@ -2,19 +2,21 @@ grammar Code;
 
 // Lexical rules
 
-BEGIN_CODE : NEWLINE? BEGIN CODE;
-END_CODE : NEWLINE? END CODE EOF;
+BEGIN_CODE : NEWLINE? BEGIN ;
+END_CODE : NEWLINE? END NEWLINE CODE;
 COMMENT : '#' ~[\r\n]* -> skip;
 
 SCAN : 'SCAN';  
 DISPLAY : 'DISPLAY';
 
 IF : 'IF';
+BEGIN_IF  : 'BEGIN IF';
+END_IF : 'END IF'
 ELSE : 'ELSE';
 WHILE : 'WHILE';
-BEGIN : 'BEGIN';
+BEGIN : 'BEGIN CODE';
 CODE : 'CODE';
-END : 'END';
+END : 'END CODE';
 
 LPAREN : '(';
 RPAREN : ')';
