@@ -16,8 +16,19 @@ public class CodeVisitor : CodeBaseVisitor<object>
     //    //Variable["SCAN:"] = new Func<object?[], object?>(Scan);
     //}
 
-    public override object VisitProgram(CodeParser.ProgramContext context)
+    public override object VisitProgram([NotNull] CodeParser.ProgramContext context)
     {
+        string code = context.GetText().Trim();
+        try
+        {
+            if (code.StartsWith("BEGIN CODE") && code.EndsWith("END CODE"))
+                Console.WriteLine("Success");
+        }
+        catch
+        {
+            throw new ArgumentException("Code must start with 'BEGIN CODE' and end with 'END CODE'.");
+        }
+
         // Visit all variable declarations first
         foreach (var variableDeclaration in context.variableDeclaration())
         {
