@@ -3,15 +3,15 @@ grammar Code;
 // Lexical rules
 
 BEGIN_CODE : NEWLINE? BEGIN ;
-END_CODE : NEWLINE? END NEWLINE CODE;
+END_CODE : NEWLINE? END ;
 COMMENT : '#' ~[\r\n]* -> skip;
 
 SCAN : 'SCAN';  
-DISPLAY : 'DISPLAY';
+DISPLAY : 'DISPLAY: ';
 
 IF : 'IF';
 BEGIN_IF  : 'BEGIN IF';
-END_IF : 'END IF'
+END_IF : 'END IF';
 ELSE : 'ELSE';
 WHILE : 'WHILE';
 BEGIN : 'BEGIN CODE';
@@ -43,10 +43,10 @@ NOT : 'NOT';
 TRUE : 'true';
 FALSE : 'false';
 
-INT_TYPE : 'INT';
-CHAR_TYPE : 'CHAR';
-BOOL_TYPE : 'BOOL';
-FLOAT_TYPE : 'FLOAT';
+INT_TYPE : 'INT ';
+CHAR_TYPE : 'CHAR ';
+BOOL_TYPE : 'BOOL ';
+FLOAT_TYPE : 'FLOAT ';
 
 IDENTIFIER : [a-zA-Z_] [a-zA-Z0-9_]*;
 
