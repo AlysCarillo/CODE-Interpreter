@@ -97,5 +97,4 @@ public class CodeVisitor : CodeBaseVisitor<object>
         Variables[variableName] = variableValue;
         return base.VisitAssignmentStatement(context);
     }
-
 }
