@@ -1,7 +1,4 @@
 # This is a sample code
 BEGIN CODE
-	INT x = 5
-	FLOAT y = 1.5
-	CHAR a_1 = 'g'
-	DISPLAY: y
+	CHAR c = 'n'
 END CODE

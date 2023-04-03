@@ -5,7 +5,7 @@ grammar Code;
 COMMENT : '#' ~[\r\n]* -> skip;
 
 SCAN : 'SCAN: ';  
-DISPLAY : 'DISPLAY: ';
+DISPLAY : 'DISPLAY';
 
 IF : 'IF';
 BEGIN_IF  : 'BEGIN IF';
@@ -59,12 +59,24 @@ WHITESPACE : [ \t\r\n] -> skip;
 
 // Parser rules
 
-program : BEGIN NEWLINE variableDeclaration* statement* NEWLINE END;
-variableDeclaration : dataType variableList* (ASSIGN expression)? NEWLINE;
+program : BEGIN NEWLINE statement* NEWLINE END;
+
+statement : assignmentStatement
+          | variableDeclaration
+          | displayStatement
+          | scanStatement
+          ;
+
+
+declaration : IDENTIFIER ((ASSIGN IDENTIFIER)* (ASSIGN expression))? (COMMA IDENTIFIER (ASSIGN expression)?)* ;
+variableDeclaration : dataType declaration NEWLINE?;
+
+assignmentStatement : (IDENTIFIER ASSIGN expression? | IDENTIFIER ASSIGN (IDENTIFIER ASSIGN expression?) )+; 
+
 line: (variableDeclaration | statement | COMMENT) NEWLINE;
 
 dataType : INT_TYPE | CHAR_TYPE | BOOL_TYPE | FLOAT_TYPE;
-variableList : IDENTIFIER (COMMA IDENTIFIER)*;
+variableList : IDENTIFIER ((ASSIGN IDENTIFIER)* (ASSIGN expression))? (COMMA IDENTIFIER (ASSIGN expression)?)* ;
 
 literal :  INT_LITERAL
         |  CHAR_LITERAL
@@ -72,26 +84,9 @@ literal :  INT_LITERAL
         |  BOOL_LITERAL
         ;
 
-statement : assignmentStatement
-          | displayStatement
-          | scanStatement
-          | variableDeclaration
-          ;
-
-displayStatement : DISPLAY expression*;
+displayStatement : DISPLAY':' expression NEWLINE?;
 scanStatement : SCAN (IDENTIFIER (COMMA IDENTIFIER)*)* NEWLINE;
 
-//ifStatement : IF LPAREN expression RPAREN IF_BLOCK (ELSE IFELSE_BLOCK);
-
-//IF_BLOCK : BEGIN_IF statement* END_IF;
-
-//IFELSE_BLOCK : BLOCK | IF_BLOCK;
-
-//BLOCK : 'LATUR';
-
-// whileStatement : WHILE LPAREN boolExpression RPAREN BEGIN statement* END;
-
-assignmentStatement : dataType IDENTIFIER ASSIGN expression NEWLINE; 
 
 expression : literal                                #literalExpression
            | IDENTIFIER                             #identifierExpression
@@ -100,13 +95,16 @@ expression : literal                                #literalExpression
            | expression addOP expression            #additionExpression
            | expression compareOP expression        #comparisonExpression
            | expression boolOP expression           #booleanExpression
+           | unaryOP expression                     #unaryExpression
+           | NOT expression                         #notExpression
+           | declaration expression                 #declarationExpression
            ;
 
 multOP : MULTIPLY | DIVIDE | MODULO;
 addOP : PLUS | MINUS;
 compareOP : GT | LT | GEQ | LEQ | EQ | NEQ;
 boolOP : AND | OR;
-
+unaryOP: PLUS | MINUS;
 
 // Error handling
 
