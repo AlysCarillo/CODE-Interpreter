@@ -75,9 +75,9 @@ public class CodeVisitor : CodeBaseVisitor<object>
 
         foreach (var vars in varName)
         {
-            if (Variables.ContainsKey(varName[0]))
+            if (Variables.ContainsKey(vars))
             {
-                Console.WriteLine($"Variable '{varName}' is already defined!");
+                Console.WriteLine($"Variable '{vars}' is already defined!");
             }
             else
             {
@@ -85,7 +85,7 @@ public class CodeVisitor : CodeBaseVisitor<object>
                 {
                     if (int.TryParse(varValue.ToString(), out int intValue))
                     {
-                        Variables[varName[0]] = intValue;
+                        Variables[vars] = intValue;
                     }
                     else
                     {
@@ -93,38 +93,37 @@ public class CodeVisitor : CodeBaseVisitor<object>
                         bool success = int.TryParse(varValue.ToString(), out value);
                         if (!success)
                         {
-                            Console.WriteLine($"Invalid value for integer variable '{varName}'");
+                            Console.WriteLine($"Invalid value for integer variable '{vars}'");
                         }
                     }
                 }
                 else if (type.Equals("FLOAT"))
                 {
                     if (float.TryParse(varValue.ToString(), out float floatValue))
-                        return Variables[varName[0]] = floatValue;
+                        return Variables[vars] = floatValue;
                     else
-                        Console.WriteLine($"Invalid value for float variable '{varName}'");
+                        Console.WriteLine($"Invalid value for float variable '{vars}'");
                 }
                 else if (type.Equals("BOOL"))
                 {
                     if (bool.TryParse(varValue.ToString(), out bool boolValue))
-                        return Variables[varName[0]] = boolValue;
+                        return Variables[vars] = boolValue;
                     else
-                        Console.WriteLine($"Invalid value for boolean variable '{varName}'");
+                        Console.WriteLine($"Invalid value for boolean variable '{vars}'");
                 }
                 else if (type.Equals("CHAR"))
                 {
                     var charValue = varValue.ToString();
                     if (charValue?.Length == 3 && charValue[0] == '\'' && charValue[2] == '\'')
-                        return Variables[varName[0]] = charValue[1];
+                        return Variables[vars] = charValue[1];
                     else
-                        Console.WriteLine($"Invalid value for character variable '{varName}'");
+                        Console.WriteLine($"Invalid value for character variable '{vars}'");
                 }
                 else
                 {
                     Console.WriteLine($"Invalid variable type '{type}'");
                 }
             }
-
         }
 
         return new object();
@@ -226,7 +225,10 @@ public class CodeVisitor : CodeBaseVisitor<object>
         }
         else if(context.literal().CHAR_LITERAL() is { } c)
         {
-            return char.Parse(c.GetText());
+            string text = c.GetText();
+            //Remove quotation marks in char
+            text = text.Substring(1, text.Length - 2).Replace("\\\\", "\\").Replace("\\\'", "\'");
+            return char.Parse(text);
         }
         else
         {
