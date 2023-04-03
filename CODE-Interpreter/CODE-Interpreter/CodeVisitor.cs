@@ -8,6 +8,7 @@ using System.Xml.Linq;
 using System.Text.RegularExpressions;
 using static Antlr4.Runtime.Atn.SemanticContext;
 using System.Text;
+using System.Reflection.Metadata.Ecma335;
 
 public class CodeVisitor : CodeBaseVisitor<object>
 {
@@ -25,18 +26,12 @@ public class CodeVisitor : CodeBaseVisitor<object>
         try
         {
             if (code.StartsWith("BEGIN CODE") && code.EndsWith("END CODE"))
-                Console.WriteLine("Success");
+                Console.Write("");
         }
         catch
         {
             Console.WriteLine("Code must start with 'BEGIN CODE' and end with 'END CODE'.");
             throw new ArgumentException("Code must start with 'BEGIN CODE' and end with 'END CODE'.");
-        }
-
-        // Visit all variable declarations first
-        foreach (var variableDeclaration in context.variableDeclaration())
-        {
-            Visit(variableDeclaration);
         }
 
         // Visit all statements next
@@ -49,80 +44,100 @@ public class CodeVisitor : CodeBaseVisitor<object>
 
     public override object VisitStatement([NotNull] CodeParser.StatementContext context)
     {
-        if(context.assignmentStatement() != null)
+        if (context.assignmentStatement() != null)
         {
             return VisitAssignmentStatement(context.assignmentStatement());
         }
-        else if(context.displayStatement() != null)
+        else if (context.displayStatement() != null)
         {
             return VisitDisplayStatement(context.displayStatement());
         }
-        else if(context.scanStatement() != null)
+        else if (context.variableDeclaration() != null)
         {
-            return VisitScanStatement(context.scanStatement());
+            return VisitVariableDeclaration(context.variableDeclaration());
         }
         else
         {
-            return new object();
+            throw new InvalidOperationException("Unknown Statement Type");
         }
     }
 
     public override object VisitVariableDeclaration([NotNull] CodeParser.VariableDeclarationContext context)
     {
         var type = context.dataType().GetText();
-        var varName = context.variableList().Select(x => x.GetText()).ToArray();
+        //extract varName
+        var varName = context.declaration().IDENTIFIER().Select(x => x.GetText()).ToList();
 
-        var varValue = VisitExpression(context.expression());
+        //extract value of the variable
+        var varValue = context.declaration().expression().Select(x => VisitExpression(x)).ToList();
 
-        foreach (var vars in varName)
+        var varDictionary = new Dictionary<string, object>();
+        for (int i = 0; i < varName.Count; i++)
         {
-            if (Variables.ContainsKey(vars))
+            if (Variables.ContainsKey(varName[i]))
             {
-                Console.WriteLine($"Variable '{vars}' is already defined!");
+                Console.WriteLine($"Variable '{varName[i]}' is already defined!");
             }
             else
             {
                 if (type.Equals("INT"))
                 {
-                    if (int.TryParse(varValue.ToString(), out int intValue))
+                    if (int.TryParse(varValue[i].ToString(), out int intValue))
                     {
-                        Variables[vars] = intValue;
+                        varDictionary[varName[i]] = intValue as int?;
                     }
                     else
                     {
                         int value;
-                        bool success = int.TryParse(varValue.ToString(), out value);
+                        bool success = int.TryParse(varValue[i].ToString(), out value);
                         if (!success)
                         {
-                            Console.WriteLine($"Invalid value for integer variable '{vars}'");
+                            Console.WriteLine($"Invalid value for integer variable '{varName[i]}'");
                         }
                     }
                 }
                 else if (type.Equals("FLOAT"))
                 {
-                    if (float.TryParse(varValue.ToString(), out float floatValue))
-                        return Variables[vars] = floatValue;
+                    //parse object varValue to object float varValue
+                    if (float.TryParse(varValue[i].ToString(), out float floatValue))
+                    {
+                        varDictionary[varName[i]] = floatValue as float?;
+                    }
                     else
-                        Console.WriteLine($"Invalid value for float variable '{vars}'");
+                    {
+                        float value;
+                        bool success = float.TryParse(varValue[i].ToString(), out value);
+                        if (!success)
+                        {
+                            Console.WriteLine($"Invalid value for float variable '{varName[i]}'");
+                        }
+                    }
                 }
                 else if (type.Equals("BOOL"))
                 {
-                    if (bool.TryParse(varValue.ToString(), out bool boolValue))
-                        return Variables[vars] = boolValue;
+                    if (bool.TryParse(varValue[i].ToString(), out bool boolValue))
+                        varDictionary[varName[i]] = boolValue;
                     else
-                        Console.WriteLine($"Invalid value for boolean variable '{vars}'");
+                        Console.WriteLine($"Invalid value for boolean variable '{varName[i]}'");
                 }
                 else if (type.Equals("CHAR"))
                 {
-                    if (char.TryParse(varValue.ToString(), out char charValue))
-                        return Variables[vars] = charValue;
+                    if (char.TryParse(varValue[i].ToString(), out char charValue))
+                    {
+                        varDictionary[varName[i]] = charValue;
+                    }
                     else
-                        Console.WriteLine($"Invalid value for character variable '{vars}'");
+                    {
+                        Console.WriteLine($"Invalid value for character variable '{varName[i]}'");
+                    }
                 }
                 else
                 {
                     Console.WriteLine($"Invalid variable type '{type}'");
                 }
+
+                // add the value to Variables
+                Variables[varName[i]] = varDictionary[varName[i]];
             }
         }
 
@@ -130,13 +145,12 @@ public class CodeVisitor : CodeBaseVisitor<object>
     }
 
 
-
     public override object VisitDataType(CodeParser.DataTypeContext context)
     {
         if (context.INT_TYPE() != null)
         {
             // Handle integer data type
-            return typeof(int);
+            return typeof(int); 
         }
         else if (context.CHAR_TYPE() != null)
         {
@@ -162,22 +176,42 @@ public class CodeVisitor : CodeBaseVisitor<object>
 
     public override object VisitAssignmentStatement([NotNull] CodeParser.AssignmentStatementContext context)
     {
-        var varName = context.IDENTIFIER().GetText();
-        var value = VisitExpression(context.expression());
+        var assignments = context.ASSIGN();
+        var identifiers = context.IDENTIFIER();
+        var expressions = context.expression();
 
-        return Variables[varName] = value;
+        for (int i = 0; i < assignments.Length; i++)
+        {
+            var identifier = identifiers[i].GetText();
+            var expression = expressions[i];
+            if (Variables.ContainsKey(identifier))
+            {
+                Variables[identifier] = VisitExpression(expression);
+            }
+            else
+            {
+                Console.WriteLine($"Variable '{identifier}' is not defined!");
+            }
+        }
+
+        return new object();
+
     }
 
     public override object VisitDisplayStatement([NotNull] CodeParser.DisplayStatementContext context)
     {
-        var sb = new StringBuilder();
-        sb.Append("DISPLAY: ");
-        var expressions = context.expression();
-        foreach (var expression in expressions)
+        //get the value of the variable from the dictionary
+        var value = context.expression().GetText();
+        if (Variables.ContainsKey(value))
         {
-            sb.Append(Visit(expression));
+            value = Variables[value].ToString();
         }
-        Console.WriteLine(sb.ToString());
+        else
+        {
+            Console.WriteLine($"Variable '{value}' is not defined!");
+        }
+
+        Console.Write(value);
         return new object();
 
     }
@@ -215,16 +249,14 @@ public class CodeVisitor : CodeBaseVisitor<object>
         {
             return float.Parse(f.GetText());
         }
-        else if(context.literal().CHAR_LITERAL() is { } c)
+        else if (context.literal().CHAR_LITERAL() is { } c)
         {
             string text = c.GetText();
             //Remove quotation marks in char
             text = text.Substring(1, text.Length - 2).Replace("\\\\", "\\").Replace("\\\'", "\'");
             return char.Parse(text);
         }
-        else
-        {
-            return new object();
-        }
+
+        return new object();
     }
 }

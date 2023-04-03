@@ -1,7 +1,8 @@
 # This is a sample code
 BEGIN CODE
-	CHAR a = 'n'
-	INT x = 10
-	FLOAT y = 16.5
+	FLOAT x = 16.5
+	CHAR a = 'a'
+	INT y = 10
+	DISPLAY: x
 	DISPLAY: a
 END CODE
