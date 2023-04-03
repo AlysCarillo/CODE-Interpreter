@@ -2,12 +2,10 @@ grammar Code;
 
 // Lexical rules
 
-BEGIN_CODE : NEWLINE? BEGIN ;
-END_CODE : NEWLINE? END NEWLINE CODE;
 COMMENT : '#' ~[\r\n]* -> skip;
 
-SCAN : 'SCAN';  
-DISPLAY : 'DISPLAY';
+SCAN : 'SCAN: ';  
+DISPLAY : 'DISPLAY: ';
 
 IF : 'IF';
 BEGIN_IF  : 'BEGIN IF';
@@ -40,8 +38,8 @@ AND : 'AND';
 OR : 'OR';
 NOT : 'NOT';
 
-TRUE : 'true';
-FALSE : 'false';
+TRUE : 'TRUE';
+FALSE : 'FALSE';
 
 INT_TYPE : 'INT';
 CHAR_TYPE : 'CHAR';
@@ -52,7 +50,8 @@ IDENTIFIER : [a-zA-Z_] [a-zA-Z0-9_]*;
 
 INT_LITERAL : [0-9]+;
 FLOAT_LITERAL : [0-9]+ DOT [0-9]+;
-CHAR_LITERAL : '\'' ~('\'' | '\r' | '\n') '\'';
+CHAR_LITERAL : '\'' ~('\''|'\\') '\'';
+BOOL_LITERAL : TRUE | FALSE;
 
 NEWLINE: '\n';
 
@@ -60,52 +59,54 @@ WHITESPACE : [ \t\r\n] -> skip;
 
 // Parser rules
 
-program : BEGIN_CODE variableDeclaration* statement* END_CODE;
-
-variableDeclaration : dataType IDENTIFIER ASSIGN expression NEWLINE?;
+program : BEGIN NEWLINE variableDeclaration* statement* NEWLINE END;
+variableDeclaration : dataType variableList* (ASSIGN expression)? NEWLINE;
+line: (variableDeclaration | statement | COMMENT) NEWLINE;
 
 dataType : INT_TYPE | CHAR_TYPE | BOOL_TYPE | FLOAT_TYPE;
-
 variableList : IDENTIFIER (COMMA IDENTIFIER)*;
 
-statement : displayStatement
+literal :  INT_LITERAL
+        |  CHAR_LITERAL
+        |  FLOAT_LITERAL
+        |  BOOL_LITERAL
+        ;
+
+statement : assignmentStatement
+          | displayStatement
           | scanStatement
-          | ifStatement
-          | whileStatement
-          | assignmentStatement
-          | SEMICOLON;
+          | variableDeclaration
+          ;
 
-displayStatement : DISPLAY expression;
+displayStatement : DISPLAY expression*;
+scanStatement : SCAN (IDENTIFIER (COMMA IDENTIFIER)*)* NEWLINE;
 
-scanStatement : SCAN COLON variableList NEWLINE?;
+//ifStatement : IF LPAREN expression RPAREN IF_BLOCK (ELSE IFELSE_BLOCK);
 
-ifStatement : IF LPAREN boolExpression RPAREN BEGIN statement* END
-            (ELSE IF LPAREN boolExpression RPAREN BEGIN statement* END)*
-            (ELSE BEGIN statement* END)?;
+//IF_BLOCK : BEGIN_IF statement* END_IF;
 
-whileStatement : WHILE LPAREN boolExpression RPAREN BEGIN statement* END;
+//IFELSE_BLOCK : BLOCK | IF_BLOCK;
 
-assignmentStatement : IDENTIFIER COLON expression NEWLINE?;
+//BLOCK : 'LATUR';
 
-expression : boolExpression | arithmeticExpression;
+// whileStatement : WHILE LPAREN boolExpression RPAREN BEGIN statement* END;
 
-boolExpression : boolTerm ((OR | AND) boolTerm)*;
+assignmentStatement : dataType IDENTIFIER ASSIGN expression NEWLINE; 
 
-boolTerm : (NOT)? boolFactor;
+expression : literal                                #literalExpression
+           | IDENTIFIER                             #identifierExpression
+           | LPAREN expression RPAREN               #parenthesisExpression
+           | expression multOP expression           #multiplicationExpression
+           | expression addOP expression            #additionExpression
+           | expression compareOP expression        #comparisonExpression
+           | expression boolOP expression           #booleanExpression
+           ;
 
-boolFactor : LPAREN boolExpression RPAREN
-           | boolLiteral
-           | relationalExpression;
+multOP : MULTIPLY | DIVIDE | MODULO;
+addOP : PLUS | MINUS;
+compareOP : GT | LT | GEQ | LEQ | EQ | NEQ;
+boolOP : AND | OR;
 
-boolLiteral : TRUE | FALSE;
-
-relationalExpression : arithmeticExpression (GT | LT | GEQ | LEQ | EQ | NEQ) arithmeticExpression;
-
-arithmeticExpression : term ((PLUS | MINUS) term)*;
-
-term : factor ((MULTIPLY | DIVIDE | MODULO) factor)*;
-
-factor : (PLUS | MINUS)? (INT_LITERAL | FLOAT_LITERAL | IDENTIFIER | LPAREN arithmeticExpression RPAREN);
 
 // Error handling
 
