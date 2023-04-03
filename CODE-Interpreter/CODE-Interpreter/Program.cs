@@ -3,7 +3,7 @@ using Antlr4.Runtime.Misc;
 using CODE_Interpreter.Content;
 using CODE_Interpreter;
 
-var file = "test.code";
+var file = "Content\\tests.txt";
 var fileContents = File.ReadAllText(file);
 
 var inputStream = new AntlrInputStream(fileContents);
