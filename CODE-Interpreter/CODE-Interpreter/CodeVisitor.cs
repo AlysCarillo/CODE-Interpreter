@@ -7,6 +7,7 @@ using System.Linq.Expressions;
 using System.Xml.Linq;
 using System.Text.RegularExpressions;
 using static Antlr4.Runtime.Atn.SemanticContext;
+using System.Text;
 
 public class CodeVisitor : CodeBaseVisitor<object>
 {
@@ -113,9 +114,8 @@ public class CodeVisitor : CodeBaseVisitor<object>
                 }
                 else if (type.Equals("CHAR"))
                 {
-                    var charValue = varValue.ToString();
-                    if (charValue?.Length == 3 && charValue[0] == '\'' && charValue[2] == '\'')
-                        return Variables[vars] = charValue[1];
+                    if (char.TryParse(varValue.ToString(), out char charValue))
+                        return Variables[vars] = charValue;
                     else
                         Console.WriteLine($"Invalid value for character variable '{vars}'");
                 }
@@ -170,24 +170,16 @@ public class CodeVisitor : CodeBaseVisitor<object>
 
     public override object VisitDisplayStatement([NotNull] CodeParser.DisplayStatementContext context)
     {
-        foreach (var variable in Variables)
+        var sb = new StringBuilder();
+        sb.Append("DISPLAY: ");
+        var expressions = context.expression();
+        foreach (var expression in expressions)
         {
-            Console.Write(variable.Value + " ");
+            sb.Append(Visit(expression));
         }
-
-        var displayValues = context.expression();
-        foreach (var displayValue in displayValues)
-        {
-            var value = displayValue.GetText();
-            if (value.StartsWith("\"") && value.EndsWith("\""))
-            {
-                Console.Write(value.Trim('"'));
-            }
-        }
-
-        Console.WriteLine();
-
+        Console.WriteLine(sb.ToString());
         return new object();
+
     }
 
     public override object VisitLiteral([NotNull] CodeParser.LiteralContext context)

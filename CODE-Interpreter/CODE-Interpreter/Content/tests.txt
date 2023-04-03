@@ -1,4 +1,7 @@
+# This is a sample code
 BEGIN CODE
-    INT z=5
-    DISPLAY: z
+	CHAR a = 'n'
+	INT x = 10
+	FLOAT y = 16.5
+	DISPLAY: a
 END CODE
