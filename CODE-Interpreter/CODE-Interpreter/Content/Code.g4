@@ -37,6 +37,7 @@ NEQ : '<>';
 AND : 'AND';
 OR : 'OR';
 NOT : 'NOT';
+CONCAT: '&';
 
 TRUE : 'TRUE';
 FALSE : 'FALSE';
@@ -84,7 +85,7 @@ literal :  INT_LITERAL
         |  BOOL_LITERAL
         ;
 
-displayStatement : DISPLAY':' expression (CONCATENATE expression)* NEWLINE?;
+displayStatement : DISPLAY':' expression (CONCAT expression)* NEWLINE?;
 scanStatement : SCAN (IDENTIFIER (COMMA IDENTIFIER)*)* NEWLINE;
 
 
@@ -98,15 +99,15 @@ expression : literal                                #literalExpression
            | unaryOP expression                     #unaryExpression
            | NOT expression                         #notExpression
            | declaration expression                 #declarationExpression
-           | expression concat expression           #concatExpression
+           | expression CONCAT expression           #concatExpression
            ;
+
 
 multOP : MULTIPLY | DIVIDE | MODULO;
 addOP : PLUS | MINUS;
 compareOP : GT | LT | GEQ | LEQ | EQ | NEQ;
 boolOP : AND | OR;
 unaryOP: PLUS | MINUS;
-concat: '&';
 
 // Error handling
 
