@@ -23,7 +23,6 @@ DOT : '.';
 COLON : ':';
 ASSIGN : '=';
 SEMICOLON : ';';
-CONCAT : '&';
 MULTIPLY : '*';
 DIVIDE : '/';
 MODULO : '%';
