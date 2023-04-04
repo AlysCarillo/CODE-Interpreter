@@ -84,7 +84,7 @@ literal :  INT_LITERAL
         |  BOOL_LITERAL
         ;
 
-displayStatement : DISPLAY':' expression NEWLINE?;
+displayStatement : DISPLAY':' expression (CONCATENATE expression)* NEWLINE?;
 scanStatement : SCAN (IDENTIFIER (COMMA IDENTIFIER)*)* NEWLINE;
 
 
@@ -98,6 +98,7 @@ expression : literal                                #literalExpression
            | unaryOP expression                     #unaryExpression
            | NOT expression                         #notExpression
            | declaration expression                 #declarationExpression
+           | expression concat expression           #concatExpression
            ;
 
 multOP : MULTIPLY | DIVIDE | MODULO;
@@ -105,6 +106,7 @@ addOP : PLUS | MINUS;
 compareOP : GT | LT | GEQ | LEQ | EQ | NEQ;
 boolOP : AND | OR;
 unaryOP: PLUS | MINUS;
+concat: '&';
 
 // Error handling
 
