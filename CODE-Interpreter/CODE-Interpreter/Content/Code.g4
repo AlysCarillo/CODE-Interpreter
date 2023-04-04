@@ -68,11 +68,14 @@ statement : assignmentStatement
           | variableDeclaration
           | displayStatement
           | scanStatement
+          | declaration
+          | variableAssignment
           ;
 
 
 declaration : IDENTIFIER ((ASSIGN IDENTIFIER)* (ASSIGN expression))? (COMMA IDENTIFIER (ASSIGN expression)?)* ;
 variableDeclaration : dataType declaration NEWLINE?;
+variableAssignment: NEWLINE? dataType IDENTIFIER NEWLINE?;
 
 assignmentStatement : (IDENTIFIER ASSIGN)+ expression?;
 

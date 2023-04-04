@@ -1,11 +1,8 @@
 # This is a sample code
 BEGIN CODE
-	INT z = 0
-	FLOAT x = 16.5
-	STRING y = "Hello World"
-	BOOL t = "TRUE"
+	INT x = -10, d
+	FLOAT y = -16.5
 	DISPLAY: x
 	DISPLAY: y
-	DISPLAY: z
-	DISPLAY: t
+	DISPLAY: "Hello World"
 END CODE

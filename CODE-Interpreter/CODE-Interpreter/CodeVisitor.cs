@@ -171,6 +171,10 @@ public class CodeVisitor : CodeBaseVisitor<object>
         {
             value = Variables[value].ToString();
         }
+        else if (value.Contains('\"'))
+        {
+            value = value.Replace("\"", "");
+        }
         else
         {
             Console.WriteLine($"Variable '{value}' is not defined!");
@@ -245,4 +249,13 @@ public class CodeVisitor : CodeBaseVisitor<object>
 
         return output;
     }
+
+    public override object VisitVariableAssignment([NotNull] CodeParser.VariableAssignmentContext context)
+    {
+        var dataType = context.dataType().GetText();
+        var varName = context.IDENTIFIER().GetText();
+
+        return Variables[varName] = new object();
+    }
+
 }
