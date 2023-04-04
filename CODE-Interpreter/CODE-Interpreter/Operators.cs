@@ -248,5 +248,22 @@ namespace CODE_Interpreter
                 throw new ArgumentException("Invalid data type");
             }
         }
+
+        public object Unary(String symbol, object value)
+        {
+            if (symbol == "+")
+                return value;
+            
+            if(symbol == "-")
+            {
+                if (value is int i)
+                    return -i;
+                if(value is float f)
+                    return -f;
+                throw new Exception($"Cannot get unary value for symbol {symbol}");
+            }
+
+            throw new Exception($"Cannot get unary value for symbol {symbol}");
+        }
     }
 }

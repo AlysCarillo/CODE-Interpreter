@@ -1,8 +1,11 @@
 # This is a sample code
 BEGIN CODE
+	INT z = 0
 	FLOAT x = 16.5
-	CHAR a = 'a'
-	INT y = 10
+	STRING y = "Hello World"
+	BOOL t = "TRUE"
 	DISPLAY: x
-	DISPLAY: a
+	DISPLAY: y
+	DISPLAY: z
+	DISPLAY: t
 END CODE
