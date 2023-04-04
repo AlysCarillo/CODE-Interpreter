@@ -201,7 +201,9 @@ public class CodeVisitor : CodeBaseVisitor<object>
     public override object VisitDisplayStatement([NotNull] CodeParser.DisplayStatementContext context)
     {
         //get the value of the variable from the dictionary
-        var value = context.expression().GetText();
+        //var value = context.expression().GetText();
+        var valueContext = context.expression()[0];
+        var value = valueContext.GetText();
         if (Variables.ContainsKey(value))
         {
             value = Variables[value].ToString();
@@ -258,5 +260,12 @@ public class CodeVisitor : CodeBaseVisitor<object>
         }
 
         return new object();
+    }
+
+    public override object VisitConcatExpression([NotNull] CodeParser.ConcatExpressionContext context)
+    {
+        var leftValue = Visit(context.expression()[0]);
+        var rightValue = Visit(context.expression()[1]);
+        return leftValue.ToString() + rightValue.ToString();
     }
 }
