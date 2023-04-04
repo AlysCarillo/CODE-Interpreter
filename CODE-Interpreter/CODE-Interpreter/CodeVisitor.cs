@@ -247,11 +247,4 @@ public class CodeVisitor : CodeBaseVisitor<object>
 
         return output;
     }
-
-    public override object VisitConcatExpression([NotNull] CodeParser.ConcatExpressionContext context)
-    {
-        var leftValue = Visit(context.expression()[0]);
-        var rightValue = Visit(context.expression()[1]);
-        return leftValue.ToString() + rightValue.ToString();
-    }
 }
