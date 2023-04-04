@@ -23,6 +23,7 @@ DOT : '.';
 COLON : ':';
 ASSIGN : '=';
 SEMICOLON : ';';
+CONCAT : '&';
 MULTIPLY : '*';
 DIVIDE : '/';
 MODULO : '%';
@@ -45,6 +46,7 @@ INT_TYPE : 'INT';
 CHAR_TYPE : 'CHAR';
 BOOL_TYPE : 'BOOL';
 FLOAT_TYPE : 'FLOAT';
+STRING_TYPE : 'STRING';
 
 IDENTIFIER : [a-zA-Z_] [a-zA-Z0-9_]*;
 
@@ -52,6 +54,7 @@ INT_LITERAL : [0-9]+;
 FLOAT_LITERAL : [0-9]+ DOT [0-9]+;
 CHAR_LITERAL : '\'' ~('\''|'\\') '\'';
 BOOL_LITERAL : TRUE | FALSE;
+STRING_LITERAL : ('"' ~'"'* '"') | ('\'' ~'\''* '\'');
 
 NEWLINE: '\n';
 
@@ -71,20 +74,21 @@ statement : assignmentStatement
 declaration : IDENTIFIER ((ASSIGN IDENTIFIER)* (ASSIGN expression))? (COMMA IDENTIFIER (ASSIGN expression)?)* ;
 variableDeclaration : dataType declaration NEWLINE?;
 
-assignmentStatement : (IDENTIFIER ASSIGN expression? | IDENTIFIER ASSIGN (IDENTIFIER ASSIGN expression?) )+; 
+assignmentStatement : (IDENTIFIER ASSIGN)+ expression?;
 
 line: (variableDeclaration | statement | COMMENT) NEWLINE;
 
-dataType : INT_TYPE | CHAR_TYPE | BOOL_TYPE | FLOAT_TYPE;
+dataType : INT_TYPE | CHAR_TYPE | BOOL_TYPE | FLOAT_TYPE | STRING_TYPE;
 variableList : IDENTIFIER ((ASSIGN IDENTIFIER)* (ASSIGN expression))? (COMMA IDENTIFIER (ASSIGN expression)?)* ;
 
 literal :  INT_LITERAL
         |  CHAR_LITERAL
         |  FLOAT_LITERAL
         |  BOOL_LITERAL
+        |  STRING_LITERAL
         ;
 
-displayStatement : DISPLAY':' expression NEWLINE?;
+displayStatement : NEWLINE? DISPLAY':' (expression | variableDeclaration) NEWLINE?;
 scanStatement : SCAN (IDENTIFIER (COMMA IDENTIFIER)*)* NEWLINE;
 
 
@@ -97,7 +101,7 @@ expression : literal                                #literalExpression
            | expression boolOP expression           #booleanExpression
            | unaryOP expression                     #unaryExpression
            | NOT expression                         #notExpression
-           | declaration expression                 #declarationExpression
+           | expression CONCAT expression 		    #concatExpression
            ;
 
 multOP : MULTIPLY | DIVIDE | MODULO;
