@@ -1,8 +1,12 @@
-# This is a sample code
 BEGIN CODE
-	INT x = -10, d
-	FLOAT y = -16.5
-	DISPLAY: x
-	DISPLAY: y
-	DISPLAY: "Hello World"
+    STRING f = "Hello World"
+    INT x , y , z = -3
+    INT a = 5
+    x = y = z
+    DISPLAY: x
+    DISPLAY: y
+    DISPLAY: z
+    DISPLAY: a
+    DISPLAY: f
+    DISPLAY: "LEZGAWWWWW"
 END CODE

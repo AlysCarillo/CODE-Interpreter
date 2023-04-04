@@ -60,6 +60,8 @@ NEWLINE: '\n';
 
 WHITESPACE : [ \t\r\n] -> skip;
 
+ESCAPE_SEQUENCE: '[' . ']';
+
 // Parser rules
 
 program : BEGIN NEWLINE statement* NEWLINE END;
@@ -105,6 +107,7 @@ expression : literal                                #literalExpression
            | unaryOP expression                     #unaryExpression
            | NOT expression                         #notExpression
            | expression CONCAT expression 		    #concatExpression
+           | ESCAPE_SEQUENCE                        #escapeSequenceExpression
            ;
 
 multOP : MULTIPLY | DIVIDE | MODULO;

@@ -258,4 +258,17 @@ public class CodeVisitor : CodeBaseVisitor<object>
         return Variables[varName] = new object();
     }
 
+    public override object VisitIdentifierExpression([NotNull] CodeParser.IdentifierExpressionContext context)
+    {
+        var identifier = context.IDENTIFIER().GetText();
+        if (Variables.ContainsKey(identifier))
+        {
+            return Variables[identifier];
+        }
+        else
+        {
+            throw new Exception($"Variable {identifier} is not declared");
+        }
+    }
+
 }
