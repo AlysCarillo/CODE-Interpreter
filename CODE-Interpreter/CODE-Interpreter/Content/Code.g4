@@ -85,7 +85,7 @@ literal :  INT_LITERAL
         |  BOOL_LITERAL
         ;
 
-displayStatement : DISPLAY':' expression (CONCAT expression)* NEWLINE?;
+displayStatement : DISPLAY':' expression NEWLINE?;
 scanStatement : SCAN (IDENTIFIER (COMMA IDENTIFIER)*)* NEWLINE;
 
 
