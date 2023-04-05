@@ -2,8 +2,6 @@ grammar Code;
 
 // Lexical rules
 
-COMMENT : '#' ~[\r\n]* -> skip;
-
 SCAN : 'SCAN: ';  
 DISPLAY : 'DISPLAY';
 
@@ -56,35 +54,34 @@ CHAR_LITERAL : '\'' ~('\''|'\\') '\'';
 BOOL_LITERAL : TRUE | FALSE;
 STRING_LITERAL : ('"' ~'"'* '"') | ('\'' ~'\''* '\'');
 
-NEWLINE: '\n';
-
 WHITESPACE : [ \t\r\n] -> skip;
+COMMENT : '#' ~[\n]* -> skip;
+NEWLINE: '\r'? '\n'| '\r';
 
 ESCAPE_SEQUENCE: '[' . ']';
 
 // Parser rules
 
-program : BEGIN NEWLINE statement* NEWLINE END;
+program : NEWLINE? BEGIN NEWLINE statement* NEWLINE END;
+line: (declaration | statement | COMMENT) NEWLINE;
 
 statement : assignmentStatement
-          | variableDeclaration
           | displayStatement
           | scanStatement
           | declaration
+          | variable
           | variableAssignment
+          | COMMENT
           ;
 
+declaration : NEWLINE? dataType IDENTIFIER (ASSIGN expression)? (COMMA IDENTIFIER (ASSIGN expression)?)*; // INT x , y , z = 5
+variableAssignment : NEWLINE? dataType IDENTIFIER (ASSIGN (expression))?; // INT x = 5
+variable: NEWLINE? dataType IDENTIFIER NEWLINE?; // INT x 
+variableDeclaration : declaration* NEWLINE?;
 
-declaration : IDENTIFIER ((ASSIGN IDENTIFIER)* (ASSIGN expression))? (COMMA IDENTIFIER (ASSIGN expression)?)* ;
-variableDeclaration : dataType declaration NEWLINE?;
-variableAssignment: NEWLINE? dataType IDENTIFIER NEWLINE?;
-
-assignmentStatement : (IDENTIFIER ASSIGN)+ expression?;
-
-line: (variableDeclaration | statement | COMMENT) NEWLINE;
+assignmentStatement : NEWLINE? IDENTIFIER (ASSIGN IDENTIFIER)* ASSIGN expression NEWLINE?; // x = y = z 
 
 dataType : INT_TYPE | CHAR_TYPE | BOOL_TYPE | FLOAT_TYPE | STRING_TYPE;
-variableList : IDENTIFIER ((ASSIGN IDENTIFIER)* (ASSIGN expression))? (COMMA IDENTIFIER (ASSIGN expression)?)* ;
 
 literal :  INT_LITERAL
         |  CHAR_LITERAL
@@ -108,6 +105,7 @@ expression : literal                                #literalExpression
            | NOT expression                         #notExpression
            | expression CONCAT expression 		    #concatExpression
            | ESCAPE_SEQUENCE                        #escapeSequenceExpression
+           | expression newlineOP expression          #newlineExpression 
            ;
 
 
@@ -116,6 +114,7 @@ addOP : PLUS | MINUS;
 compareOP : GT | LT | GEQ | LEQ | EQ | NEQ;
 boolOP : AND | OR;
 unaryOP: PLUS | MINUS;
+newlineOP: '$';
 
 // Error handling
 
