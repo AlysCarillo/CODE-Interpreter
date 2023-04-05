@@ -1,11 +1,12 @@
-# This is a sample code
 BEGIN CODE
-	INT z = 0
-	FLOAT x = 16.5
-	STRING y = "Hello World"
-	BOOL t = "TRUE"
-	DISPLAY: x
-	DISPLAY: y
-	DISPLAY: z
-	DISPLAY: t
+    STRING f = "Hello World"
+    INT x , y , z = -3
+    INT a = 5
+    x = y = z
+    DISPLAY: x
+    DISPLAY: y
+    DISPLAY: z
+    DISPLAY: a
+    DISPLAY: f
+    DISPLAY: "LEZGAWWWWW"
 END CODE

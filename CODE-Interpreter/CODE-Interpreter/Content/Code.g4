@@ -60,6 +60,8 @@ NEWLINE: '\n';
 
 WHITESPACE : [ \t\r\n] -> skip;
 
+ESCAPE_SEQUENCE: '[' . ']';
+
 // Parser rules
 
 program : BEGIN NEWLINE statement* NEWLINE END;
@@ -68,11 +70,14 @@ statement : assignmentStatement
           | variableDeclaration
           | displayStatement
           | scanStatement
+          | declaration
+          | variableAssignment
           ;
 
 
 declaration : IDENTIFIER ((ASSIGN IDENTIFIER)* (ASSIGN expression))? (COMMA IDENTIFIER (ASSIGN expression)?)* ;
 variableDeclaration : dataType declaration NEWLINE?;
+variableAssignment: NEWLINE? dataType IDENTIFIER NEWLINE?;
 
 assignmentStatement : (IDENTIFIER ASSIGN)+ expression?;
 
@@ -101,8 +106,8 @@ expression : literal                                #literalExpression
            | expression boolOP expression           #booleanExpression
            | unaryOP expression                     #unaryExpression
            | NOT expression                         #notExpression
-           | declaration expression                 #declarationExpression
-           | expression CONCAT expression           #concatExpression
+           | expression CONCAT expression 		    #concatExpression
+           | ESCAPE_SEQUENCE                        #escapeSequenceExpression
            ;
 
 
