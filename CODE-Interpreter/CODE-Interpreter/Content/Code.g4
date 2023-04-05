@@ -77,8 +77,8 @@ statement : assignmentStatement
           ;
 
 declaration : NEWLINE? dataType IDENTIFIER (ASSIGN expression)? (COMMA IDENTIFIER (ASSIGN expression)?)*; // INT x , y , z = 5
-variable : NEWLINE? dataType IDENTIFIER (ASSIGN (expression))?; // INT x = 5
-variableAssignment: NEWLINE? dataType IDENTIFIER NEWLINE?; // INT x 
+variableAssignment : NEWLINE? dataType IDENTIFIER (ASSIGN (expression))?; // INT x = 5
+variable: NEWLINE? dataType IDENTIFIER NEWLINE?; // INT x 
 variableDeclaration : declaration* NEWLINE?;
 
 assignmentStatement : NEWLINE? IDENTIFIER (ASSIGN IDENTIFIER)* ASSIGN expression NEWLINE?; // x = y = z 
