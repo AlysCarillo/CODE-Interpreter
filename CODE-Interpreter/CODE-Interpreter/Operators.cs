@@ -265,5 +265,9 @@ namespace CODE_Interpreter
 
             throw new Exception($"Cannot get unary value for symbol {symbol}");
         }
+        public object NewlineSymbol(string input)
+        {
+            return input.Replace("$", Environment.NewLine);
+        }
     }
 }
