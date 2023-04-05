@@ -167,7 +167,7 @@ public class CodeVisitor : CodeBaseVisitor<object>
     {
         //get the value of the variable from the dictionary
         //var value = context.expression().GetText();
-        var valueContext = context.expression()[0];
+        var valueContext = context.expression();
         var value = valueContext.GetText();
         if (Variables.ContainsKey(value))
         {
@@ -176,6 +176,21 @@ public class CodeVisitor : CodeBaseVisitor<object>
         else if (value.Contains('\"'))
         {
             value = value.Replace("\"", "");
+        }
+        else if (value.Contains('&'))
+        {
+            var concatenated = "";
+            value = value.Replace("&", "");
+            var length = value.Length;
+            for (int i = 0; i < length; i++)
+            {
+                var temp = value.ElementAt(i).ToString();
+                if (Variables.ContainsKey(temp))
+                {
+                    concatenated += Variables[temp].ToString();
+                }
+            }
+            value = concatenated;
         }
         else
         {
@@ -229,9 +244,10 @@ public class CodeVisitor : CodeBaseVisitor<object>
     public override object VisitConcatExpression([NotNull] CodeParser.ConcatExpressionContext context)
     {
         // Visit the left and right expressions
-        var left = context.expression()[0].Accept(this);
-        var right = context.expression()[1].Accept(this);
-
+        //var left = context.expression()[0].Accept(this);
+        //var right = context.expression()[1].Accept(this);
+        var left = Visit(context.expression()[0]);
+        var right = Visit(context.expression()[1]);
         // Check if both left and right are variable names
         if (left == null && right == null)
         {
