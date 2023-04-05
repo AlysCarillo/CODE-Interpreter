@@ -54,9 +54,17 @@ public class CodeVisitor : CodeBaseVisitor<object>
         {
             return VisitDisplayStatement(context.displayStatement());
         }
-        else if (context.variableDeclaration() != null)
+        else if(context.variableAssignment() != null)
         {
-            return VisitVariableDeclaration(context.variableDeclaration());
+            return VisitVariableAssignment(context.variableAssignment());
+        }
+        else if(context.declaration() != null)
+        {
+            return VisitDeclaration(context.declaration());
+        }
+        else if(context.variable() != null)
+        {
+            return VisitVariable(context.variable());
         }
         else
         {
@@ -64,57 +72,42 @@ public class CodeVisitor : CodeBaseVisitor<object>
         }
     }
 
-    public override object VisitVariableDeclaration([NotNull] CodeParser.VariableDeclarationContext context)
+    public override List<object?> VisitDeclaration([NotNull] CodeParser.DeclarationContext context)
     {
-        // Extract variable data type
         var type = context.dataType().GetText();
-        var varName = context.declaration().IDENTIFIER().Select(x => x.GetText()).ToList();
+        var varnames = context.IDENTIFIER();
 
-        var declaration = context.declaration().GetText().Split(',');
-        var exp = context.declaration().expression();
-        int flagExp = 0;
+        // remove type
+        var contextstring = context.GetText().Replace(type, "");
 
-        for (int i = 0; i < declaration.Length; i++)
+        var contextParts = contextstring.Split(',');
+        var exp = context.expression();
+        int expctr = 0;
+
+        // traverse each part
+        for (int x = 0; x < contextParts.Length; x++)
         {
-            if (Variables.ContainsKey(varName[i]))
+            if (Variables.ContainsKey(varnames[x].GetText()))
             {
-                Console.WriteLine(varName[i] + "is already declared");
+                Console.WriteLine(varnames[x].GetText() + "is already declared");
                 continue;
             }
-            if (declaration[i].Contains('='))
+            if (contextParts[x].Contains('='))
             {
-                if (flagExp < exp.Count())
+                if (expctr < exp.Count())
                 {
-                    Variables[varName[i]] = Visit(exp[flagExp]);
-                    flagExp++;
+                    Variables[varnames[x].GetText()] = Visit(exp[expctr]);
+                    expctr++;
                 }
             }
             else
             {
-                // Initialize variable with default value
-                switch (type)
-                {
-                    case "INT":
-                        Variables[varName[i]] = 0;
-                        break;
-                    case "FLOAT":
-                        Variables[varName[i]] = 0.0f;
-                        break;
-                    case "STRING":
-                        Variables[varName[i]] = "";
-                        break;
-                    case "BOOL":
-                        Variables[varName[i]] = false;
-                        break;
-                    default:
-                        Variables[varName[i]] = new object();
-                        break;
-                }
+                Variables[varnames[x].GetText()] = new object();
             }
+
         }
 
-        return new object();
-
+        return new List<object?>();
     }
 
 
@@ -165,24 +158,11 @@ public class CodeVisitor : CodeBaseVisitor<object>
 
     public override object VisitDisplayStatement([NotNull] CodeParser.DisplayStatementContext context)
     {
-        //get the value of the variable from the dictionary
-        var value = context.expression().GetText();
-        if (Variables.ContainsKey(value))
-        {
-            value = Variables[value].ToString();
-        }
-        else if (value.Contains('\"'))
-        {
-            value = value.Replace("\"", "");
-        }
-        else
-        {
-            Console.WriteLine($"Variable '{value}' is not defined!");
-        }
+        var exp = Visit(context.expression());
 
-        Console.Write(value + " ");
+        Console.Write(exp + " ");
+
         return new object();
-
     }
 
     public override object VisitLiteral([NotNull] CodeParser.LiteralContext context)
@@ -217,6 +197,38 @@ public class CodeVisitor : CodeBaseVisitor<object>
         {
             throw new InvalidOperationException("Unknown Literal Type");
         }
+    }
+
+    public override object VisitLiteralExpression([NotNull] CodeParser.LiteralExpressionContext context)
+    {
+        if (context.literal().INT_LITERAL() is { } i)
+        {
+            return int.Parse(i.GetText());
+        }
+        else if (context.literal().FLOAT_LITERAL() is { } f)
+        {
+            return float.Parse(f.GetText());
+        }
+        else if (context.literal().CHAR_LITERAL() is { } c)
+        {
+            string text = c.GetText();
+            //Remove quotation marks in char
+            text = text.Substring(1, text.Length - 2).Replace("\\\\", "\\").Replace("\\\'", "\'");
+            return char.Parse(text);
+        }
+        else if (context.literal().BOOL_LITERAL() is { } b)
+        {
+            return bool.Parse(b.GetText().ToString().ToUpper());
+        }
+        else if (context.literal().STRING_LITERAL() is { } s)
+        {
+            string text = s.GetText();
+            text = text.Substring(1, text.Length - 2).Replace("\\\\", "\\").Replace("\\\"", "\"");
+            return text;
+
+        }
+
+        return new object();
     }
 
     public override object VisitUnaryExpression([NotNull] CodeParser.UnaryExpressionContext context)

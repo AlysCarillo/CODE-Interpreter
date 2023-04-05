@@ -1,12 +1,15 @@
 BEGIN CODE
-    STRING f = "Hello World"
-    INT x , y , z = -3
-    INT a = 5
-    x = y = z
-    DISPLAY: x
-    DISPLAY: y
-    DISPLAY: z
-    DISPLAY: a
-    DISPLAY: f
-    DISPLAY: "LEZGAWWWWW"
+	INT x , y , z = -5
+	x = y = 16
+	FLOAT f = -16.5
+	BOOL t = "TRUE"
+	STRING s = "Hello World"
+	CHAR c = 'C'
+	DISPLAY: x
+	DISPLAY: y
+	DISPLAY: z
+	DISPLAY: f
+	DISPLAY: t
+	DISPLAY: s
+	DISPLAY: c
 END CODE
