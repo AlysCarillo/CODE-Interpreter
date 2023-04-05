@@ -54,7 +54,7 @@ CHAR_LITERAL : '\'' ~('\''|'\\') '\'';
 BOOL_LITERAL : TRUE | FALSE;
 STRING_LITERAL : ('"' ~'"'* '"') | ('\'' ~'\''* '\'');
 
-WHITESPACE : [\t\r\n] -> skip;
+WHITESPACE : [ \t\r\n] -> skip;
 COMMENT : '#' ~[\n]* -> skip;
 NEWLINE: '\r'? '\n'| '\r';
 
@@ -105,7 +105,7 @@ expression : literal                                #literalExpression
            | NOT expression                         #notExpression
            | expression CONCAT expression 		    #concatExpression
            | ESCAPE_SEQUENCE                        #escapeSequenceExpression
-           | expression NEWLINE expression          #newlineExpression 
+           | expression newlineOP expression          #newlineExpression 
            ;
 
 multOP : MULTIPLY | DIVIDE | MODULO;
