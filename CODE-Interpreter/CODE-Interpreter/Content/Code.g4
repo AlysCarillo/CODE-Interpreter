@@ -2,8 +2,6 @@ grammar Code;
 
 // Lexical rules
 
-COMMENT : '#' ~[\r\n]* -> skip;
-
 SCAN : 'SCAN: ';  
 DISPLAY : 'DISPLAY';
 
@@ -56,9 +54,9 @@ CHAR_LITERAL : '\'' ~('\''|'\\') '\'';
 BOOL_LITERAL : TRUE | FALSE;
 STRING_LITERAL : ('"' ~'"'* '"') | ('\'' ~'\''* '\'');
 
-NEWLINE: '\n';
-
 WHITESPACE : [ \t\r\n] -> skip;
+COMMENT : '#' ~[\n]* -> skip;
+NEWLINE: '\r'? '\n'| '\r';
 
 ESCAPE_SEQUENCE: '[' . ']';
 
@@ -107,6 +105,7 @@ expression : literal                                #literalExpression
            | NOT expression                         #notExpression
            | expression CONCAT expression 		    #concatExpression
            | ESCAPE_SEQUENCE                        #escapeSequenceExpression
+           | expression newlineOP expression          #newlineExpression 
            ;
 
 multOP : MULTIPLY | DIVIDE | MODULO;
@@ -114,6 +113,7 @@ addOP : PLUS | MINUS;
 compareOP : GT | LT | GEQ | LEQ | EQ | NEQ;
 boolOP : AND | OR;
 unaryOP: PLUS | MINUS;
+newlineOP: '$';
 
 // Error handling
 

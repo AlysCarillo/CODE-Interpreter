@@ -48,15 +48,15 @@ public class CodeVisitor : CodeBaseVisitor<object>
         {
             return VisitDisplayStatement(context.displayStatement());
         }
-        else if(context.variableAssignment() != null)
+        else if (context.variableAssignment() != null)
         {
             return VisitVariableAssignment(context.variableAssignment());
         }
-        else if(context.declaration() != null)
+        else if (context.declaration() != null)
         {
             return VisitDeclaration(context.declaration());
         }
-        else if(context.variable() != null)
+        else if (context.variable() != null)
         {
             return VisitVariable(context.variable());
         }
@@ -132,7 +132,7 @@ public class CodeVisitor : CodeBaseVisitor<object>
         if (context.INT_TYPE() != null)
         {
             // Handle integer data type
-            return typeof(int); 
+            return typeof(int);
         }
         else if (context.CHAR_TYPE() != null)
         {
@@ -149,7 +149,7 @@ public class CodeVisitor : CodeBaseVisitor<object>
             // Handle float data type
             return typeof(float);
         }
-        else if(context.STRING_TYPE() != null)
+        else if (context.STRING_TYPE() != null)
         {
             return typeof(string);
         }
@@ -198,14 +198,14 @@ public class CodeVisitor : CodeBaseVisitor<object>
         {
             return float.Parse(context.FLOAT_LITERAL().GetText());
         }
-        else if(context.STRING_LITERAL() != null)
+        else if (context.STRING_LITERAL() != null)
         {
             string text = context.STRING_LITERAL().GetText();
             // Remove the enclosing double quotes and escape sequences
             text = text.Substring(1, text.Length - 2).Replace("\\\\", "\\").Replace("\\\"", "\"");
             return text;
         }
-        else if(context.BOOL_LITERAL() != null)
+        else if (context.BOOL_LITERAL() != null)
         {
             return bool.Parse(context.BOOL_LITERAL().GetText());
         }
@@ -292,4 +292,10 @@ public class CodeVisitor : CodeBaseVisitor<object>
         }
     }
 
+    public override object VisitNewlineExpression([NotNull] CodeParser.NewlineExpressionContext context)
+    {
+        var leftExpression = Visit(context.expression(0));
+        var rightExpression = Visit(context.expression(1));
+        return op.NewlineSymbol($"{leftExpression}{Environment.NewLine}{rightExpression}");
+    }
 }
