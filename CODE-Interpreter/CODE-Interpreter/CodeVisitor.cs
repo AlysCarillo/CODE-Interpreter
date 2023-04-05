@@ -177,21 +177,6 @@ public class CodeVisitor : CodeBaseVisitor<object>
         {
             value = value.Replace("\"", "");
         }
-        else if (value.Contains('&'))
-        {
-            var concatenated = "";
-            value = value.Replace("&", "");
-            var length = value.Length;
-            for (int i = 0; i < length; i++)
-            {
-                var temp = value.ElementAt(i).ToString();
-                if (Variables.ContainsKey(temp))
-                {
-                    concatenated += Variables[temp].ToString();
-                }
-            }
-            value = concatenated;
-        }
         else
         {
             Console.WriteLine($"Variable '{value}' is not defined!");
