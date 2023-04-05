@@ -1,15 +1,6 @@
 BEGIN CODE
-	INT x , y , z = -5
-	x = y = 16
-	FLOAT f = -16.5
-	BOOL t = "TRUE"
-	STRING s = "Hello$World"
-	CHAR c = 'C'
-	DISPLAY: x
-	DISPLAY: y
-	DISPLAY: z
-	DISPLAY: f
-	DISPLAY: t
-	DISPLAY: s $
-	DISPLAY: c
+	INT a = 100, b = 200, c = 300 
+	BOOL d = "FALSE"
+	d = a < b AND c <> 200
+	DISPLAY: NOT d
 END CODE
