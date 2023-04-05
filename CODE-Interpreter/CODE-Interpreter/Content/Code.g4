@@ -23,6 +23,7 @@ DOT : '.';
 COLON : ':';
 ASSIGN : '=';
 SEMICOLON : ';';
+CONCAT : '&';
 MULTIPLY : '*';
 DIVIDE : '/';
 MODULO : '%';
@@ -45,6 +46,7 @@ INT_TYPE : 'INT';
 CHAR_TYPE : 'CHAR';
 BOOL_TYPE : 'BOOL';
 FLOAT_TYPE : 'FLOAT';
+STRING_TYPE : 'STRING';
 
 IDENTIFIER : [a-zA-Z_] [a-zA-Z0-9_]*;
 
@@ -52,39 +54,45 @@ INT_LITERAL : [0-9]+;
 FLOAT_LITERAL : [0-9]+ DOT [0-9]+;
 CHAR_LITERAL : '\'' ~('\''|'\\') '\'';
 BOOL_LITERAL : TRUE | FALSE;
+STRING_LITERAL : ('"' ~'"'* '"') | ('\'' ~'\''* '\'');
 
 NEWLINE: '\n';
 
 WHITESPACE : [ \t\r\n] -> skip;
 
+ESCAPE_SEQUENCE: '[' . ']';
+
 // Parser rules
 
-program : BEGIN NEWLINE statement* NEWLINE END;
+program : NEWLINE? BEGIN NEWLINE statement* NEWLINE END;
+line: (declaration | statement | COMMENT) NEWLINE;
 
 statement : assignmentStatement
-          | variableDeclaration
           | displayStatement
           | scanStatement
+          | declaration
+          | variable
+          | variableAssignment
+          | COMMENT
           ;
 
+declaration : NEWLINE? dataType IDENTIFIER (ASSIGN expression)? (COMMA IDENTIFIER (ASSIGN expression)?)*; // INT x , y , z = 5
+variableAssignment : NEWLINE? dataType IDENTIFIER (ASSIGN (expression))?; // INT x = 5
+variable: NEWLINE? dataType IDENTIFIER NEWLINE?; // INT x 
+variableDeclaration : declaration* NEWLINE?;
 
-declaration : IDENTIFIER ((ASSIGN IDENTIFIER)* (ASSIGN expression))? (COMMA IDENTIFIER (ASSIGN expression)?)* ;
-variableDeclaration : dataType declaration NEWLINE?;
+assignmentStatement : NEWLINE? IDENTIFIER (ASSIGN IDENTIFIER)* ASSIGN expression NEWLINE?; // x = y = z 
 
-assignmentStatement : (IDENTIFIER ASSIGN expression? | IDENTIFIER ASSIGN (IDENTIFIER ASSIGN expression?) )+; 
-
-line: (variableDeclaration | statement | COMMENT) NEWLINE;
-
-dataType : INT_TYPE | CHAR_TYPE | BOOL_TYPE | FLOAT_TYPE;
-variableList : IDENTIFIER ((ASSIGN IDENTIFIER)* (ASSIGN expression))? (COMMA IDENTIFIER (ASSIGN expression)?)* ;
+dataType : INT_TYPE | CHAR_TYPE | BOOL_TYPE | FLOAT_TYPE | STRING_TYPE;
 
 literal :  INT_LITERAL
         |  CHAR_LITERAL
         |  FLOAT_LITERAL
         |  BOOL_LITERAL
+        |  STRING_LITERAL
         ;
 
-displayStatement : DISPLAY':' expression NEWLINE?;
+displayStatement : NEWLINE? DISPLAY':' (expression | variableDeclaration) NEWLINE?;
 scanStatement : SCAN (IDENTIFIER (COMMA IDENTIFIER)*)* NEWLINE;
 
 
@@ -97,7 +105,8 @@ expression : literal                                #literalExpression
            | expression boolOP expression           #booleanExpression
            | unaryOP expression                     #unaryExpression
            | NOT expression                         #notExpression
-           | declaration expression                 #declarationExpression
+           | expression CONCAT expression 		    #concatExpression
+           | ESCAPE_SEQUENCE                        #escapeSequenceExpression
            ;
 
 multOP : MULTIPLY | DIVIDE | MODULO;

@@ -9,16 +9,12 @@ using System.Text.RegularExpressions;
 using static Antlr4.Runtime.Atn.SemanticContext;
 using System.Text;
 using System.Reflection.Metadata.Ecma335;
+using CODE_Interpreter;
 
 public class CodeVisitor : CodeBaseVisitor<object>
 {
     private Dictionary<string, object> Variables = new Dictionary<string, object>();
-
-    public CodeVisitor()
-    {
-        //Variables["DISPLAY:"] = new Func<object?[], object?>();
-        //Variable["SCAN:"] = new Func<object?[], object?>(Scan);
-    }
+    private Operators op = new Operators();
 
     public override object VisitProgram([NotNull] CodeParser.ProgramContext context)
     {
@@ -52,9 +48,17 @@ public class CodeVisitor : CodeBaseVisitor<object>
         {
             return VisitDisplayStatement(context.displayStatement());
         }
-        else if (context.variableDeclaration() != null)
+        else if(context.variableAssignment() != null)
         {
-            return VisitVariableDeclaration(context.variableDeclaration());
+            return VisitVariableAssignment(context.variableAssignment());
+        }
+        else if(context.declaration() != null)
+        {
+            return VisitDeclaration(context.declaration());
+        }
+        else if(context.variable() != null)
+        {
+            return VisitVariable(context.variable());
         }
         else
         {
@@ -62,88 +66,66 @@ public class CodeVisitor : CodeBaseVisitor<object>
         }
     }
 
-    public override object VisitVariableDeclaration([NotNull] CodeParser.VariableDeclarationContext context)
+    public override List<object?> VisitDeclaration([NotNull] CodeParser.DeclarationContext context)
     {
         var type = context.dataType().GetText();
-        //extract varName
-        var varName = context.declaration().IDENTIFIER().Select(x => x.GetText()).ToList();
+        var varnames = context.IDENTIFIER();
 
-        //extract value of the variable
-        var varValue = context.declaration().expression().Select(x => VisitExpression(x)).ToList();
+        // remove type
+        var contextstring = context.GetText().Replace(type, "");
 
-        var varDictionary = new Dictionary<string, object>();
-        for (int i = 0; i < varName.Count; i++)
+        var contextParts = contextstring.Split(',');
+        var exp = context.expression();
+        int expctr = 0;
+
+        // traverse each part
+        for (int x = 0; x < contextParts.Length; x++)
         {
-            if (Variables.ContainsKey(varName[i]))
+            if (Variables.ContainsKey(varnames[x].GetText()))
             {
-                Console.WriteLine($"Variable '{varName[i]}' is already defined!");
+                Console.WriteLine(varnames[x].GetText() + "is already declared");
+                continue;
+            }
+            if (contextParts[x].Contains('='))
+            {
+                if (expctr < exp.Count())
+                {
+                    Variables[varnames[x].GetText()] = Visit(exp[expctr]);
+                    expctr++;
+                }
             }
             else
             {
-                if (type.Equals("INT"))
-                {
-                    if (int.TryParse(varValue[i].ToString(), out int intValue))
-                    {
-                        varDictionary[varName[i]] = intValue as int?;
-                    }
-                    else
-                    {
-                        int value;
-                        bool success = int.TryParse(varValue[i].ToString(), out value);
-                        if (!success)
-                        {
-                            Console.WriteLine($"Invalid value for integer variable '{varName[i]}'");
-                        }
-                    }
-                }
-                else if (type.Equals("FLOAT"))
-                {
-                    //parse object varValue to object float varValue
-                    if (float.TryParse(varValue[i].ToString(), out float floatValue))
-                    {
-                        varDictionary[varName[i]] = floatValue as float?;
-                    }
-                    else
-                    {
-                        float value;
-                        bool success = float.TryParse(varValue[i].ToString(), out value);
-                        if (!success)
-                        {
-                            Console.WriteLine($"Invalid value for float variable '{varName[i]}'");
-                        }
-                    }
-                }
-                else if (type.Equals("BOOL"))
-                {
-                    if (bool.TryParse(varValue[i].ToString(), out bool boolValue))
-                        varDictionary[varName[i]] = boolValue;
-                    else
-                        Console.WriteLine($"Invalid value for boolean variable '{varName[i]}'");
-                }
-                else if (type.Equals("CHAR"))
-                {
-                    if (char.TryParse(varValue[i].ToString(), out char charValue))
-                    {
-                        varDictionary[varName[i]] = charValue;
-                    }
-                    else
-                    {
-                        Console.WriteLine($"Invalid value for character variable '{varName[i]}'");
-                    }
-                }
-                else
-                {
-                    Console.WriteLine($"Invalid variable type '{type}'");
-                }
-
-                // add the value to Variables
-                Variables[varName[i]] = varDictionary[varName[i]];
+                Variables[varnames[x].GetText()] = new object();
             }
+
         }
 
-        return new object();
+        return new List<object?>();
     }
 
+    public override object VisitVariable([NotNull] CodeParser.VariableContext context)
+    {
+        var dataType = context.dataType().GetText();
+        var varName = context.IDENTIFIER().GetText();
+
+        return Variables[varName] = new object();
+    }
+
+    public override object VisitVariableAssignment([NotNull] CodeParser.VariableAssignmentContext context)
+    {
+        var type = context.dataType().GetText();
+        var varName = context.IDENTIFIER().GetText();
+        var exp = context.expression();
+
+        if (Variables.ContainsKey(varName))
+        {
+            Console.WriteLine(varName + "is already declared");
+            return new object();
+        }
+
+        return Variables[varName] = exp;
+    }
 
     public override object VisitDataType(CodeParser.DataTypeContext context)
     {
@@ -167,6 +149,10 @@ public class CodeVisitor : CodeBaseVisitor<object>
             // Handle float data type
             return typeof(float);
         }
+        else if(context.STRING_TYPE() != null)
+        {
+            return typeof(string);
+        }
         else
         {
             // Invalid data type
@@ -176,44 +162,23 @@ public class CodeVisitor : CodeBaseVisitor<object>
 
     public override object VisitAssignmentStatement([NotNull] CodeParser.AssignmentStatementContext context)
     {
-        var assignments = context.ASSIGN();
-        var identifiers = context.IDENTIFIER();
-        var expressions = context.expression();
-
-        for (int i = 0; i < assignments.Length; i++)
+        var identifier = context.IDENTIFIER();
+        foreach (var i in identifier)
         {
-            var identifier = identifiers[i].GetText();
-            var expression = expressions[i];
-            if (Variables.ContainsKey(identifier))
-            {
-                Variables[identifier] = VisitExpression(expression);
-            }
-            else
-            {
-                Console.WriteLine($"Variable '{identifier}' is not defined!");
-            }
+            var expression = context.expression().Accept(this);
+            Variables[i.GetText()] = expression;
         }
 
         return new object();
-
     }
 
     public override object VisitDisplayStatement([NotNull] CodeParser.DisplayStatementContext context)
     {
-        //get the value of the variable from the dictionary
-        var value = context.expression().GetText();
-        if (Variables.ContainsKey(value))
-        {
-            value = Variables[value].ToString();
-        }
-        else
-        {
-            Console.WriteLine($"Variable '{value}' is not defined!");
-        }
+        var exp = Visit(context.expression());
 
-        Console.Write(value);
+        Console.Write(exp + " ");
+
         return new object();
-
     }
 
     public override object VisitLiteral([NotNull] CodeParser.LiteralContext context)
@@ -232,6 +197,17 @@ public class CodeVisitor : CodeBaseVisitor<object>
         else if (context.FLOAT_LITERAL() != null)
         {
             return float.Parse(context.FLOAT_LITERAL().GetText());
+        }
+        else if(context.STRING_LITERAL() != null)
+        {
+            string text = context.STRING_LITERAL().GetText();
+            // Remove the enclosing double quotes and escape sequences
+            text = text.Substring(1, text.Length - 2).Replace("\\\\", "\\").Replace("\\\"", "\"");
+            return text;
+        }
+        else if(context.BOOL_LITERAL() != null)
+        {
+            return bool.Parse(context.BOOL_LITERAL().GetText());
         }
         else
         {
@@ -256,7 +232,64 @@ public class CodeVisitor : CodeBaseVisitor<object>
             text = text.Substring(1, text.Length - 2).Replace("\\\\", "\\").Replace("\\\'", "\'");
             return char.Parse(text);
         }
+        else if (context.literal().BOOL_LITERAL() is { } b)
+        {
+            return bool.Parse(b.GetText().ToString().ToUpper());
+        }
+        else if (context.literal().STRING_LITERAL() is { } s)
+        {
+            string text = s.GetText();
+            text = text.Substring(1, text.Length - 2).Replace("\\\\", "\\").Replace("\\\"", "\"");
+            return text;
+
+        }
 
         return new object();
     }
+
+    public override object VisitUnaryExpression([NotNull] CodeParser.UnaryExpressionContext context)
+    {
+        return op.Unary(context.unaryOP().GetText(), Visit(context.expression()));
+    }
+
+    public override object VisitConcatExpression([NotNull] CodeParser.ConcatExpressionContext context)
+    {
+        // Visit the left and right expressions
+        var left = context.expression()[0].Accept(this);
+        var right = context.expression()[1].Accept(this);
+
+        // Check if both left and right are variable names
+        if (left == null && right == null)
+        {
+            throw new NullReferenceException();
+        }
+
+        // Concatenate the left and right values
+        var output = "";
+        if (left != null)
+        {
+            output += left.ToString();
+        }
+        if (right != null)
+        {
+            output += right.ToString();
+        }
+
+        return output;
+    }
+
+
+    public override object VisitIdentifierExpression([NotNull] CodeParser.IdentifierExpressionContext context)
+    {
+        var identifier = context.IDENTIFIER().GetText();
+        if (Variables.ContainsKey(identifier))
+        {
+            return Variables[identifier];
+        }
+        else
+        {
+            throw new Exception($"Variable {identifier} is not declared");
+        }
+    }
+
 }
