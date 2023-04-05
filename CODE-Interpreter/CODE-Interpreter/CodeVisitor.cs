@@ -229,10 +229,9 @@ public class CodeVisitor : CodeBaseVisitor<object>
     public override object VisitConcatExpression([NotNull] CodeParser.ConcatExpressionContext context)
     {
         // Visit the left and right expressions
-        //var left = context.expression()[0].Accept(this);
-        //var right = context.expression()[1].Accept(this);
-        var left = Visit(context.expression()[0]);
-        var right = Visit(context.expression()[1]);
+        var left = context.expression()[0].Accept(this);
+        var right = context.expression()[1].Accept(this);
+
         // Check if both left and right are variable names
         if (left == null && right == null)
         {
