@@ -298,4 +298,61 @@ public class CodeVisitor : CodeBaseVisitor<object>
         var rightExpression = Visit(context.expression(1));
         return op.NewlineSymbol($"{leftExpression}{Environment.NewLine}{rightExpression}");
     }
+
+    public override object VisitScanStatement([NotNull] CodeParser.ScanStatementContext context)
+    {
+        foreach (var identifier in context.IDENTIFIER())
+        {
+            Console.Write("Enter a value for " + identifier.GetText() + ": ");
+            string input = Console.ReadLine();
+
+            // Parse the input value based on the data type of the variable
+            if (Variables.TryGetValue(identifier.GetText(), out object value))
+            {
+                Type dataType = value.GetType();
+                object parsedValue = null;
+
+                if (dataType == typeof(int))
+                {
+                    int intValue;
+                    if (int.TryParse(input, out intValue))
+                    {
+                        parsedValue = intValue;
+                    }
+                }
+                else if (dataType == typeof(char))
+                {
+                    char charValue;
+                    if (char.TryParse(input, out charValue))
+                    {
+                        parsedValue = charValue;
+                    }
+                }
+                else if (dataType == typeof(bool))
+                {
+                    bool boolValue;
+                    if (bool.TryParse(input, out boolValue))
+                    {
+                        parsedValue = boolValue;
+                    }
+                }
+                else if (dataType == typeof(float))
+                {
+                    float floatValue;
+                    if (float.TryParse(input, out floatValue))
+                    {
+                        parsedValue = floatValue;
+                    }
+                }
+                else if (dataType == typeof(string))
+                {
+                    parsedValue = input;
+                }
+
+                Variables[identifier.GetText()] = parsedValue;
+            }
+        }
+
+        return null;
+    }
 }
