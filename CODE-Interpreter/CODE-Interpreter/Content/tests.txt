@@ -1,6 +1,6 @@
 BEGIN CODE
-	INT a = 100, b = 200, c = 300 
-	BOOL d = "FALSE"
-	d = a < b AND c <> 200
-	DISPLAY: NOT d
+	INT x, y
+	STRING str
+	SCAN: x, y, str
+	DISPLAY: x + y $ str
 END CODE

@@ -60,6 +60,10 @@ public class CodeVisitor : CodeBaseVisitor<object>
         {
             return VisitVariable(context.variable());
         }
+        else if(context.scanStatement() != null)
+        {
+            return VisitScanStatement(context.scanStatement());
+        }
         else
         {
             throw new InvalidOperationException("Unknown Statement Type");
@@ -175,6 +179,9 @@ public class CodeVisitor : CodeBaseVisitor<object>
     public override object VisitDisplayStatement([NotNull] CodeParser.DisplayStatementContext context)
     {
         var exp = Visit(context.expression());
+
+        if (exp is bool b)
+            exp = b.ToString().ToUpper();
 
         Console.Write(exp + " ");
 
@@ -299,7 +306,7 @@ public class CodeVisitor : CodeBaseVisitor<object>
         return op.NewlineSymbol($"{leftExpression}{Environment.NewLine}{rightExpression}");
     }
 
-    public override object VisitAdditionExpression([NotNull] CodeParser.AdditionExpressionContext context)
+    public override object VisitAdditiveExpression([NotNull] CodeParser.AdditiveExpressionContext context)
     {
         var left = Visit(context.expression(0));
         var right = Visit(context.expression(1));
@@ -364,5 +371,59 @@ public class CodeVisitor : CodeBaseVisitor<object>
     {
         var expression = Visit(context.expression());
         return Operators.NotBoolean(expression);    
+    }
+
+    public override object VisitParenthesisExpression([NotNull] CodeParser.ParenthesisExpressionContext context)
+    {
+        return Visit(context.expression());
+    }
+
+    public override object VisitScanStatement([NotNull] CodeParser.ScanStatementContext context)
+    {
+        var input = Console.ReadLine();
+        var inputs = input!.Split(',').Select(s => s.Trim()).ToArray();
+
+        if (inputs.Length < 1 || inputs.Length > context.IDENTIFIER().Length)
+        {
+            throw new ArgumentException($"Invalid number of inputs. Expected between 1 and {context.IDENTIFIER().Length}, but got {inputs.Length}.");
+        }
+
+        for (int i = 0; i < inputs.Length; i++)
+        {
+            var idName = context.IDENTIFIER(i).GetText();
+            if (!Variables.ContainsKey(idName))
+            {
+                throw new ArgumentException($"Variable '{idName}' has not been declared.");
+            }
+
+            var inputValue = inputs[i];
+            if (int.TryParse(inputValue, out int intValue))
+            {
+                Variables[idName] = intValue;
+            }
+            else if (float.TryParse(inputValue, out float floatValue))
+            {
+                Variables[idName] = floatValue;
+            }
+            else if (char.TryParse(inputValue, out char charValue))
+            {
+                Variables[idName] = charValue;
+            }
+            else if (inputValue != null)
+            {
+                Variables[idName] = inputValue;
+            }
+            else
+            {
+                throw new ArgumentException($"Invalid input for variable {idName}");
+            }
+        }
+
+        return new object();
+    }
+
+    public override object VisitEscapeExpression([NotNull] CodeParser.EscapeExpressionContext context)
+    {
+        return context.ESCAPE().GetText()[1];
     }
 }
