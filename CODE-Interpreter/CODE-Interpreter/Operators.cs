@@ -9,7 +9,7 @@ namespace CODE_Interpreter
 {
     internal class Operators : CodeBaseVisitor<object>
     {
-        public static object? Add(object? left, object? right)
+        public static object Add(object? left, object? right)
         {
             if (left is int && right is int)
             {
@@ -29,7 +29,7 @@ namespace CODE_Interpreter
             }
         }
 
-        public static object? Subtract(object? left, object? right)
+        public static object Subtract(object? left, object? right)
         {
             if (left is int && right is int)
             {
@@ -45,7 +45,7 @@ namespace CODE_Interpreter
             }
         }
 
-        public static object? Multiply(object? left, object? right)
+        public static object Multiply(object? left, object? right)
         {
             if (left is int && right is int)
             {
@@ -61,7 +61,7 @@ namespace CODE_Interpreter
             }
         }
 
-        public static object? Divide(object? left, object? right)
+        public static object Divide(object? left, object? right)
         {
             if (left is int && right is int)
             {
@@ -77,7 +77,7 @@ namespace CODE_Interpreter
             }
         }
 
-        public static object? Modulo(object? left, object? right)
+        public static object Modulo(object? left, object? right)
         {
             if (left is int && right is int)
             {
@@ -93,7 +93,7 @@ namespace CODE_Interpreter
             }
         }
 
-        public static object? GreaterThan(object? left, object? right)
+        public static object GreaterThan(object? left, object? right)
         {
             if (left is int && right is int)
             {
@@ -109,7 +109,7 @@ namespace CODE_Interpreter
             }
         }
 
-        public static object? LesserThan(object? left, object? right)
+        public static object LesserThan(object? left, object? right)
         {
             if (left is int && right is int)
             {
@@ -125,7 +125,7 @@ namespace CODE_Interpreter
             }
         }
 
-        public static object? GreaterThanEqual(object? left, object? right)
+        public static object GreaterThanEqual(object? left, object? right)
         {
             if (left is int && right is int)
             {
@@ -141,7 +141,7 @@ namespace CODE_Interpreter
             }
         }
 
-        public static object? LesserThanEqual(object? left, object? right)
+        public static object LesserThanEqual(object? left, object? right)
         {
             if (left is int && right is int)
             {
@@ -157,7 +157,7 @@ namespace CODE_Interpreter
             }
         }
 
-        public static object? Equal(object? left, object? right)
+        public static object Equal(object? left, object? right)
         {
             if (left is int && right is int)
             {
@@ -185,7 +185,7 @@ namespace CODE_Interpreter
             }
         }
 
-        public static object? NotEqual(object? left, object? right)
+        public static object NotEqual(object? left, object? right)
         {
             if (left is int && right is int)
             {
@@ -213,7 +213,7 @@ namespace CODE_Interpreter
             }
         }
 
-        public static object? AndBoolean(object? left, object? right)
+        public static object AndBoolean(object? left, object? right)
         {
             if (left is bool && right is bool)
             {
@@ -225,7 +225,7 @@ namespace CODE_Interpreter
             }
         }
 
-        public static object? OrBoolean(object? left, object? right)
+        public static object OrBoolean(object? left, object? right)
         {
             if (left is bool && right is bool)
             {
@@ -237,7 +237,7 @@ namespace CODE_Interpreter
             }
         }
 
-        public static object? NotBoolean(object? left)
+        public static object NotBoolean(object? left)
         {
             if (left is bool)
             {
@@ -249,16 +249,16 @@ namespace CODE_Interpreter
             }
         }
 
-        public object Unary(String symbol, object value)
+        public static object Unary(String symbol, object value)
         {
             if (symbol == "+")
                 return value;
-            
-            if(symbol == "-")
+
+            if (symbol == "-")
             {
                 if (value is int i)
                     return -i;
-                if(value is float f)
+                if (value is float f)
                     return -f;
                 throw new Exception($"Cannot get unary value for symbol {symbol}");
             }
@@ -268,6 +268,16 @@ namespace CODE_Interpreter
         public object NewlineSymbol(string input)
         {
             return input.Replace("$", Environment.NewLine);
+        }
+
+        public object LeftParenthesis(string input)
+        {
+            return input.Replace("(", "");
+        }
+
+        public object RightParenthesis(string input)
+        {
+            return input.Replace(")", "");
         }
     }
 }

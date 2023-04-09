@@ -249,7 +249,7 @@ public class CodeVisitor : CodeBaseVisitor<object>
 
     public override object VisitUnaryExpression([NotNull] CodeParser.UnaryExpressionContext context)
     {
-        return op.Unary(context.unaryOP().GetText(), Visit(context.expression()));
+        return Operators.Unary(context.unaryOP().GetText(), Visit(context.expression()));
     }
 
     public override object VisitConcatExpression([NotNull] CodeParser.ConcatExpressionContext context)
@@ -297,5 +297,72 @@ public class CodeVisitor : CodeBaseVisitor<object>
         var leftExpression = Visit(context.expression(0));
         var rightExpression = Visit(context.expression(1));
         return op.NewlineSymbol($"{leftExpression}{Environment.NewLine}{rightExpression}");
+    }
+
+    public override object VisitAdditionExpression([NotNull] CodeParser.AdditionExpressionContext context)
+    {
+        var left = Visit(context.expression(0));
+        var right = Visit(context.expression(1));
+        var addop = context.addOP().GetText();
+
+        return addop switch
+        {
+            "+" => Operators.Add(left, right),
+            "-" => Operators.Subtract(left, right),
+            _ => throw new InvalidOperationException("Unknown operator")
+        };
+    }
+
+    public override object VisitMultiplicationExpression([NotNull] CodeParser.MultiplicationExpressionContext context)
+    {
+        var left = Visit(context.expression(0));
+        var right = Visit(context.expression(1));
+        var multop = context.multOP().GetText();
+
+        return multop switch
+        {
+            "*" => Operators.Multiply(left, right),
+            "/" => Operators.Divide(left, right),
+            "%" => Operators.Modulo(left, right),
+            _ => throw new InvalidOperationException("Unknown operator")
+        };
+    }
+
+    public override object VisitComparisonExpression([NotNull] CodeParser.ComparisonExpressionContext context)
+    {
+        var left = Visit(context.expression(0));
+        var right = Visit(context.expression(1));
+        var compop = context.compareOP().GetText();
+
+        return compop switch
+        {
+            "==" => Operators.Equal(left, right),
+            "<>" => Operators.NotEqual(left, right),
+            ">" => Operators.GreaterThan(left, right),
+            ">=" => Operators.GreaterThanEqual(left, right),
+            "<" => Operators.LesserThan(left, right),
+            "<=" => Operators.LesserThanEqual(left, right),
+            _ => throw new InvalidOperationException("Unknown operator")
+        };
+    }
+
+    public override object VisitBooleanExpression([NotNull] CodeParser.BooleanExpressionContext context)
+    {
+        var left = Visit(context.expression(0));
+        var right = Visit(context.expression(1));
+        var boolop = context.boolOP().GetText();
+
+        return boolop switch
+        {
+            "AND" => Operators.AndBoolean(left, right),
+            "OR" => Operators.OrBoolean(left, right),
+            _ => throw new InvalidOperationException("Unknown operator")
+        };
+    }
+
+    public override object VisitNotExpression([NotNull] CodeParser.NotExpressionContext context)
+    {
+        var expression = Visit(context.expression());
+        return Operators.NotBoolean(expression);    
     }
 }
