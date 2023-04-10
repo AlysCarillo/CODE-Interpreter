@@ -1,6 +1,8 @@
 BEGIN CODE
-	INT a = 100, b = 200, c = 300 
-	BOOL d = "FALSE"
-	d = a < b AND c <> 200
-	DISPLAY: NOT d
+	INT x = 10
+	INT y = 5
+	IF (x > y AND y == 5)
+	BEGIN IF
+		DISPLAY: x
+	END IF
 END CODE

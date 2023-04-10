@@ -9,6 +9,7 @@ IF : 'IF';
 BEGIN_IF  : 'BEGIN IF';
 END_IF : 'END IF';
 ELSE : 'ELSE';
+ELSE_IF : 'ELSE IF';
 WHILE : 'WHILE';
 BEGIN : 'BEGIN CODE';
 CODE : 'CODE';
@@ -21,7 +22,6 @@ DOT : '.';
 COLON : ':';
 ASSIGN : '=';
 SEMICOLON : ';';
-CONCAT : '&';
 MULTIPLY : '*';
 DIVIDE : '/';
 MODULO : '%';
@@ -36,6 +36,7 @@ NEQ : '<>';
 AND : 'AND';
 OR : 'OR';
 NOT : 'NOT';
+CONCAT: '&';
 
 TRUE : 'TRUE';
 FALSE : 'FALSE';
@@ -58,19 +59,18 @@ WHITESPACE : [ \t\r\n] -> skip;
 COMMENT : '#' ~[\n]* -> skip;
 NEWLINE: '\r'? '\n'| '\r';
 
-ESCAPE_SEQUENCE: '[' . ']';
-
 // Parser rules
 
 program : NEWLINE? BEGIN NEWLINE statement* NEWLINE END;
 line: (declaration | statement | COMMENT) NEWLINE;
 
 statement : assignmentStatement
-          | displayStatement
-          | scanStatement
           | declaration
           | variable
           | variableAssignment
+          | displayStatement
+          | scanStatement
+          | ifStatement
           | COMMENT
           ;
 
@@ -90,23 +90,24 @@ literal :  INT_LITERAL
         |  STRING_LITERAL
         ;
 
-displayStatement : NEWLINE? DISPLAY':' (expression | variableDeclaration) NEWLINE?;
-scanStatement : SCAN (IDENTIFIER (COMMA IDENTIFIER)*)* NEWLINE;
-
+displayStatement : NEWLINE? DISPLAY':' expression NEWLINE?;
+scanStatement : SCAN ':' IDENTIFIER (COMMA IDENTIFIER)* NEWLINE?;
+ifStatement : NEWLINE? IF LPAREN (expression compareOP|boolOP expression) RPAREN NEWLINE BEGIN_IF NEWLINIE statement* NEWLINE END_IF;
 
 expression : literal                                #literalExpression
            | IDENTIFIER                             #identifierExpression
            | LPAREN expression RPAREN               #parenthesisExpression
            | expression multOP expression           #multiplicationExpression
-           | expression addOP expression            #additionExpression
+           | expression addOP expression            #additiveExpression
            | expression compareOP expression        #comparisonExpression
            | expression boolOP expression           #booleanExpression
            | unaryOP expression                     #unaryExpression
            | NOT expression                         #notExpression
            | expression CONCAT expression 		    #concatExpression
-           | ESCAPE_SEQUENCE                        #escapeSequenceExpression
-           | expression newlineOP expression          #newlineExpression 
+           | ESCAPE                                 #EscapeExpression                            
+           | expression newlineOP expression        #newlineExpression
            ;
+
 
 multOP : MULTIPLY | DIVIDE | MODULO;
 addOP : PLUS | MINUS;
@@ -114,6 +115,8 @@ compareOP : GT | LT | GEQ | LEQ | EQ | NEQ;
 boolOP : AND | OR;
 unaryOP: PLUS | MINUS;
 newlineOP: '$';
+ESCAPE: '['. ']';
+
 
 // Error handling
 
