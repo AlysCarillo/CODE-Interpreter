@@ -64,6 +64,10 @@ public class CodeVisitor : CodeBaseVisitor<object>
         {
             return VisitScanStatement(context.scanStatement());
         }
+        else if(context.ifStatement() != null)
+        {
+            return VisitIfStatement(context.ifStatement());
+        }
         else
         {
             throw new InvalidOperationException("Unknown Statement Type");
@@ -425,5 +429,20 @@ public class CodeVisitor : CodeBaseVisitor<object>
     public override object VisitEscapeExpression([NotNull] CodeParser.EscapeExpressionContext context)
     {
         return context.ESCAPE().GetText()[1];
+    }
+
+    public override object VisitIfStatement([NotNull] CodeParser.IfStatementContext context)
+    {
+        var condition = (bool)(Visit(context.expression()));
+
+        if (condition)
+        {
+            // Execute the statements inside the if block
+            foreach (var statement in context.statement())
+            {
+                VisitStatement(statement);
+            }
+        }
+        return new object();
     }
 }
