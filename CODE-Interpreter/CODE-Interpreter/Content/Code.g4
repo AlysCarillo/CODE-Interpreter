@@ -9,7 +9,7 @@ IF : 'IF';
 BEGIN_IF  : 'BEGIN IF';
 END_IF : 'END IF';
 ELSE : 'ELSE';
-ELSE_IF : 'ELSE IF'
+ELSE_IF : 'ELSE IF';
 WHILE : 'WHILE';
 BEGIN : 'BEGIN CODE';
 CODE : 'CODE';
@@ -70,6 +70,7 @@ statement : assignmentStatement
           | variableAssignment
           | displayStatement
           | scanStatement
+          | ifStatement
           | COMMENT
           ;
 
@@ -91,7 +92,7 @@ literal :  INT_LITERAL
 
 displayStatement : NEWLINE? DISPLAY':' expression NEWLINE?;
 scanStatement : SCAN ':' IDENTIFIER (COMMA IDENTIFIER)* NEWLINE?;
-
+ifStatement : NEWLINE? IF LPAREN ((expression boolOP expression)|(expression compareOP expression)) RPAREN NEWLINE BEGIN_IF NEWLINIE statement* NEWLINE END_IF;
 
 expression : literal                                #literalExpression
            | IDENTIFIER                             #identifierExpression
