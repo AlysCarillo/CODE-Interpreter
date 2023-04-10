@@ -1,6 +1,8 @@
 BEGIN CODE
-	INT x, y
-	STRING str
-	SCAN: x, y, str
-	DISPLAY: x + y $ str
+	INT x = 10
+	INT y = 5
+	IF (x > y AND y == 5)
+	BEGIN IF
+		DISPLAY: x
+	END IF
 END CODE
