@@ -2,6 +2,8 @@
 using Antlr4.Runtime.Misc;
 using CODE_Interpreter.Content;
 using CODE_Interpreter;
+using CODE_Interpreter.ErrorHandling;
+using System;
 
 var file = "Content\\tests.txt";
 var fileContents = File.ReadAllText(file);
@@ -12,6 +14,11 @@ var inputStream = new AntlrInputStream(fileContents);
 var codeLexer = new CodeLexer(inputStream);
 CommonTokenStream commonTokenStream = new CommonTokenStream(codeLexer);
 var codeParser = new CodeParser(commonTokenStream);
+
+// Error Handling
+var syntaxHandler = new SyntaxHandler();
+codeParser.AddErrorListener(syntaxHandler);
+
 var codeContext = codeParser.program();
 
 // Parse the code and walk the parse tree using the CodeVisitor

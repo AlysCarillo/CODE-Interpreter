@@ -1,6 +1,3 @@
 BEGIN CODE
-	INT x, y
-	STRING str
-	SCAN: x, y, str
-	DISPLAY: x + y $ str
-END CODE
+INT x = 5
+END 

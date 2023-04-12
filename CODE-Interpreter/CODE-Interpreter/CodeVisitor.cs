@@ -9,34 +9,34 @@ using System.Text.RegularExpressions;
 using static Antlr4.Runtime.Atn.SemanticContext;
 using System.Text;
 using System.Reflection.Metadata.Ecma335;
-using CODE_Interpreter;
+using CODE_Interpreter.Functions;
 
 public class CodeVisitor : CodeBaseVisitor<object>
 {
     private Dictionary<string, object> Variables = new Dictionary<string, object>();
     private Operators op = new Operators();
 
-    public override object VisitProgram([NotNull] CodeParser.ProgramContext context)
-    {
-        string code = context.GetText().Trim();
-        try
-        {
-            if (code.StartsWith("BEGIN CODE") && code.EndsWith("END CODE"))
-                Console.Write("");
-        }
-        catch
-        {
-            Console.WriteLine("Code must start with 'BEGIN CODE' and end with 'END CODE'.");
-            throw new ArgumentException("Code must start with 'BEGIN CODE' and end with 'END CODE'.");
-        }
+    //public override object VisitProgram([NotNull] CodeParser.ProgramContext context)
+    //{
+    //    string code = context.GetText().Trim();
 
-        // Visit all statements next
-        foreach (var statement in context.statement())
-        {
-            VisitStatement(statement);
-        }
-        return new object();
-    }
+    //    if (code.StartsWith("BEGIN CODE") && code.EndsWith("END CODE"))
+    //    {
+    //        Console.Write("SUCESS");
+    //    }
+    //    else
+    //    {
+    //        Console.WriteLine("Code must start with 'BEGIN CODE' and end with 'END CODE'.");
+    //        throw new ArgumentException("Code must start with 'BEGIN CODE' and end with 'END CODE'.");
+    //    }
+
+    //    // Visit all statements next
+    //    foreach (var statement in context.statement())
+    //    {
+    //        VisitStatement(statement);
+    //    }
+    //    return new object();
+    //}
 
     public override object VisitStatement([NotNull] CodeParser.StatementContext context)
     {

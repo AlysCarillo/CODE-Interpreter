@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using CODE_Interpreter.Content;
 
-namespace CODE_Interpreter
+namespace CODE_Interpreter.Functions
 {
     internal class Operators : CodeBaseVisitor<object>
     {
@@ -249,7 +249,7 @@ namespace CODE_Interpreter
             }
         }
 
-        public static object Unary(String symbol, object value)
+        public static object Unary(string symbol, object value)
         {
             if (symbol == "+")
                 return value;
