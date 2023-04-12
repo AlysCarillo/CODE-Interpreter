@@ -92,7 +92,7 @@ literal :  INT_LITERAL
 
 displayStatement : NEWLINE? DISPLAY':' expression NEWLINE?;
 scanStatement : SCAN ':' IDENTIFIER (COMMA IDENTIFIER)* NEWLINE?;
-ifStatement : NEWLINE? IF LPAREN (expression compareOP|boolOP expression) RPAREN NEWLINE BEGIN_IF NEWLINIE statement* NEWLINE END_IF;
+ifStatement : NEWLINE? IF LPAREN (expression compareOP|boolOP expression) RPAREN NEWLINE BEGIN_IF NEWLINE statement* NEWLINE END_IF;
 
 expression : literal                                #literalExpression
            | IDENTIFIER                             #identifierExpression
