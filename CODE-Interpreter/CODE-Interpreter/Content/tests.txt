@@ -1,3 +1,4 @@
 BEGIN CODE
-INT x = 5
-END 
+INT x = 1, y = 2, z = 3
+DISPLAY: x & $ & y
+END CODE

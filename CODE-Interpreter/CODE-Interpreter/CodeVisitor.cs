@@ -301,9 +301,7 @@ public class CodeVisitor : CodeBaseVisitor<object>
 
     public override object VisitNewlineExpression([NotNull] CodeParser.NewlineExpressionContext context)
     {
-        var leftExpression = Visit(context.expression(0));
-        var rightExpression = Visit(context.expression(1));
-        return op.NewlineSymbol($"{leftExpression}{Environment.NewLine}{rightExpression}");
+        return "\n";
     }
 
     public override object VisitAdditiveExpression([NotNull] CodeParser.AdditiveExpressionContext context)

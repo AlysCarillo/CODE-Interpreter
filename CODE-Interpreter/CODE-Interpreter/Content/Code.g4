@@ -93,6 +93,7 @@ scanStatement : SCAN ':' IDENTIFIER (COMMA IDENTIFIER)* NEWLINE?;
 
 
 expression : literal                                #literalExpression
+           | NEWLINEOP                              #newlineExpression 
            | IDENTIFIER                             #identifierExpression
            | LPAREN expression RPAREN               #parenthesisExpression
            | expression multOP expression           #multiplicationExpression
@@ -103,7 +104,6 @@ expression : literal                                #literalExpression
            | NOT expression                         #notExpression
            | expression CONCAT expression 		    #concatExpression
            | ESCAPE                                 #EscapeExpression                            
-           | expression newlineOP expression        #newlineExpression 
            ;
 
 multOP : MULTIPLY | DIVIDE | MODULO;
@@ -111,7 +111,7 @@ addOP : PLUS | MINUS;
 compareOP : GT | LT | GEQ | LEQ | EQ | NEQ;
 boolOP : AND | OR;
 unaryOP: PLUS | MINUS;
-newlineOP: '$';
+NEWLINEOP: '$';
 ESCAPE: '['. ']';
 
 // Error handling
