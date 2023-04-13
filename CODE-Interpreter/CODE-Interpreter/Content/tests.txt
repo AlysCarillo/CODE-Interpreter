@@ -1,4 +1,9 @@
 BEGIN CODE
-INT x = 1, y = 2, z = 3
-DISPLAY: x & $ & y
+INT x, y, z=5
+CHAR a_1='n'
+BOOL t="TRUE"
+x=y=4
+a_1='c'
+# this is a comment
+DISPLAY: x & t & z & $ & a_1 & [#] & "last"
 END CODE

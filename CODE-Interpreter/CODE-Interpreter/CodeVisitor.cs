@@ -76,21 +76,21 @@ public class CodeVisitor : CodeBaseVisitor<object>
         var varnames = context.IDENTIFIER();
 
         // remove type
-        var contextstring = context.GetText().Replace(type, "");
+        var contextValue = context.GetText().Replace(type, "");
 
-        var contextParts = contextstring.Split(',');
+        var contextArray = contextValue.Split(',');
         var exp = context.expression();
         int expctr = 0;
 
         // traverse each part
-        for (int x = 0; x < contextParts.Length; x++)
+        for (int x = 0; x < contextArray.Length; x++)
         {
             if (Variables.ContainsKey(varnames[x].GetText()))
             {
                 Console.WriteLine(varnames[x].GetText() + "is already declared");
                 continue;
             }
-            if (contextParts[x].Contains('='))
+            if (contextArray[x].Contains('='))
             {
                 if (expctr < exp.Count())
                 {
@@ -301,7 +301,7 @@ public class CodeVisitor : CodeBaseVisitor<object>
 
     public override object VisitNewlineExpression([NotNull] CodeParser.NewlineExpressionContext context)
     {
-        return "\n";
+        return op.NewlineSymbol($"{Environment.NewLine}");
     }
 
     public override object VisitAdditiveExpression([NotNull] CodeParser.AdditiveExpressionContext context)

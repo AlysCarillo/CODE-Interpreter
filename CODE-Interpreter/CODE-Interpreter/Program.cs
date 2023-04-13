@@ -30,13 +30,13 @@ while (isContinue)
     visitor.VisitProgram(codeContext);
 
     Console.WriteLine("\n");
-    Console.WriteLine("Finish? (Y/N): ");
+    Console.WriteLine("Continue? (Y/N): ");
     var res = Console.ReadLine()![0];
 
-    isContinue = (res == 'N' || res == 'n') ? true : false;
+    isContinue = (res == 'N' || res == 'n') ? false : true;
 
     Console.WriteLine("=================================================================================");
-    Console.WriteLine("\n\n");
+    Console.WriteLine("\n");
 
 }
 

@@ -63,10 +63,10 @@ NEWLINE: '\r'? '\n'| '\r';
 program : NEWLINE? BEGIN NEWLINE statement* NEWLINE END;
 line: (declaration | statement | COMMENT) NEWLINE;
 
-statement : assignmentStatement
-          | declaration
+statement : declaration
           | variable
           | variableAssignment
+          | assignmentStatement
           | displayStatement
           | scanStatement
           | COMMENT
@@ -93,8 +93,10 @@ scanStatement : SCAN ':' IDENTIFIER (COMMA IDENTIFIER)* NEWLINE?;
 
 
 expression : literal                                #literalExpression
-           | NEWLINEOP                              #newlineExpression 
+           | newlineOP                              #newlineExpression 
+           | ESCAPE                                 #EscapeExpression                            
            | IDENTIFIER                             #identifierExpression
+           | expression CONCAT expression 		    #concatExpression
            | LPAREN expression RPAREN               #parenthesisExpression
            | expression multOP expression           #multiplicationExpression
            | expression addOP expression            #additiveExpression
@@ -102,8 +104,6 @@ expression : literal                                #literalExpression
            | expression boolOP expression           #booleanExpression
            | unaryOP expression                     #unaryExpression
            | NOT expression                         #notExpression
-           | expression CONCAT expression 		    #concatExpression
-           | ESCAPE                                 #EscapeExpression                            
            ;
 
 multOP : MULTIPLY | DIVIDE | MODULO;
@@ -111,7 +111,7 @@ addOP : PLUS | MINUS;
 compareOP : GT | LT | GEQ | LEQ | EQ | NEQ;
 boolOP : AND | OR;
 unaryOP: PLUS | MINUS;
-NEWLINEOP: '$';
+newlineOP: '$';
 ESCAPE: '['. ']';
 
 // Error handling
