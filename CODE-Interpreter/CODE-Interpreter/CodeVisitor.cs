@@ -22,7 +22,7 @@ public class CodeVisitor : CodeBaseVisitor<object>
 
     //    if (code.StartsWith("BEGIN CODE") && code.EndsWith("END CODE"))
     //    {
-    //        Console.Write("SUCESS");
+    //        Console.WriteLine("");
     //    }
     //    else
     //    {
@@ -63,6 +63,10 @@ public class CodeVisitor : CodeBaseVisitor<object>
         else if(context.scanStatement() != null)
         {
             return VisitScanStatement(context.scanStatement());
+        }
+        else if(context.COMMENT() != null)
+        {
+            return new object();
         }
         else
         {
@@ -301,7 +305,7 @@ public class CodeVisitor : CodeBaseVisitor<object>
 
     public override object VisitNewlineExpression([NotNull] CodeParser.NewlineExpressionContext context)
     {
-        return op.NewlineSymbol($"{Environment.NewLine}");
+        return "\n";
     }
 
     public override object VisitAdditiveExpression([NotNull] CodeParser.AdditiveExpressionContext context)

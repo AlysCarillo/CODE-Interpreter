@@ -15,15 +15,15 @@ while (isContinue)
     var inputStream = new AntlrInputStream(fileContents);
 
     // Create a lexer and parser for the code
-    var codeLexer = new CodeLexer(inputStream);
-    CommonTokenStream commonTokenStream = new CommonTokenStream(codeLexer);
-    var codeParser = new CodeParser(commonTokenStream);
+    var lexer = new CodeLexer(inputStream);
+    var tokens = new CommonTokenStream(lexer);
+    var parser = new CodeParser(tokens);
 
     // Error Handling
     var syntaxHandler = new SyntaxHandler();
-    codeParser.AddErrorListener(syntaxHandler);
+    parser.AddErrorListener(syntaxHandler);
 
-    var codeContext = codeParser.program();
+    var codeContext = parser.program();
 
     // Parse the code and walk the parse tree using the CodeVisitor
     var visitor = new CodeVisitor();
@@ -33,7 +33,7 @@ while (isContinue)
     Console.WriteLine("Continue? (Y/N): ");
     var res = Console.ReadLine()![0];
 
-    isContinue = (res == 'N' || res == 'n') ? false : true;
+    isContinue = (res != 'Y' || res != 'y') ? false : true;
 
     Console.WriteLine("=================================================================================");
     Console.WriteLine("\n");

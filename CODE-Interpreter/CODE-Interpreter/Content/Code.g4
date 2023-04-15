@@ -56,7 +56,7 @@ STRING_LITERAL : ('"' ~'"'* '"') | ('\'' ~'\''* '\'');
 
 WHITESPACE : [ \t\r\n] -> skip;
 COMMENT : '#' ~[\n]* -> skip;
-NEWLINE: '\r'? '\n'| '\r';
+NEWLINE: '\r' '\n' | '\r';
 
 // Parser rules
 
@@ -93,8 +93,8 @@ scanStatement : SCAN ':' IDENTIFIER (COMMA IDENTIFIER)* NEWLINE?;
 
 
 expression : literal                                #literalExpression
-           | newlineOP                              #newlineExpression 
            | ESCAPE                                 #EscapeExpression                            
+           | newlineOP                              #newlineExpression 
            | IDENTIFIER                             #identifierExpression
            | expression CONCAT expression 		    #concatExpression
            | LPAREN expression RPAREN               #parenthesisExpression
