@@ -9,6 +9,7 @@ IF : 'IF';
 BEGIN_IF  : 'BEGIN IF';
 END_IF : 'END IF';
 ELSE : 'ELSE';
+ELSE_IF : 'ELSE IF';
 WHILE : 'WHILE';
 BEGIN : 'BEGIN CODE';
 CODE : 'CODE';
@@ -21,7 +22,6 @@ DOT : '.';
 COLON : ':';
 ASSIGN : '=';
 SEMICOLON : ';';
-CONCAT : '&';
 MULTIPLY : '*';
 DIVIDE : '/';
 MODULO : '%';
@@ -36,6 +36,7 @@ NEQ : '<>';
 AND : 'AND';
 OR : 'OR';
 NOT : 'NOT';
+CONCAT: '&';
 
 TRUE : 'TRUE';
 FALSE : 'FALSE';
@@ -69,6 +70,7 @@ statement : declaration
           | assignmentStatement
           | displayStatement
           | scanStatement
+          | ifStatement
           | COMMENT
           ;
 
@@ -90,7 +92,7 @@ literal :  INT_LITERAL
 
 displayStatement : NEWLINE? DISPLAY':' expression NEWLINE?;
 scanStatement : SCAN ':' IDENTIFIER (COMMA IDENTIFIER)* NEWLINE?;
-
+ifStatement : NEWLINE? IF LPAREN (expression compareOP|boolOP expression) RPAREN NEWLINE BEGIN_IF NEWLINIE statement* NEWLINE END_IF;
 
 expression : literal                                #literalExpression
            | ESCAPE                                 #EscapeExpression                            
@@ -106,6 +108,7 @@ expression : literal                                #literalExpression
            | NOT expression                         #notExpression
            ;
 
+
 multOP : MULTIPLY | DIVIDE | MODULO;
 addOP : PLUS | MINUS;
 compareOP : GT | LT | GEQ | LEQ | EQ | NEQ;
@@ -113,6 +116,7 @@ boolOP : AND | OR;
 unaryOP: PLUS | MINUS;
 newlineOP: '$';
 ESCAPE: '['. ']';
+
 
 // Error handling
 
