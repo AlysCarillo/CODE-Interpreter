@@ -71,6 +71,7 @@ statement : declaration
           | displayStatement
           | scanStatement
           | ifStatement
+          | switchStatement
           | COMMENT
           ;
 
@@ -92,7 +93,18 @@ literal :  INT_LITERAL
 
 displayStatement : NEWLINE? DISPLAY':' expression NEWLINE?;
 scanStatement : SCAN ':' IDENTIFIER (COMMA IDENTIFIER)* NEWLINE?;
-ifStatement : NEWLINE? IF LPAREN (expression compareOP|boolOP expression) RPAREN NEWLINE BEGIN_IF NEWLINIE statement* NEWLINE END_IF;
+ifStatement : NEWLINE? IF LPAREN (expression compareOP|boolOP expression) RPAREN NEWLINE BEGIN_IF NEWLINE statement* NEWLINE END_IF;
+
+switchStatement : NEWLINE? 'SWITCH' expression NEWLINE
+                 'BEGIN SWITCH' NEWLINE
+                 (caseBlock)+
+                 defaultBlock?
+                 NEWLINE? 'END SWITCH'
+                 ;
+
+caseBlock : 'CASE' expression ':' statement* 'BREAK' NEWLINE?;
+
+defaultBlock : 'DEFAULT' ':' statement* 'BREAK' NEWLINE?;
 
 expression : literal                                #literalExpression
            | ESCAPE                                 #EscapeExpression                            
@@ -107,7 +119,6 @@ expression : literal                                #literalExpression
            | unaryOP expression                     #unaryExpression
            | NOT expression                         #notExpression
            ;
-
 
 multOP : MULTIPLY | DIVIDE | MODULO;
 addOP : PLUS | MINUS;

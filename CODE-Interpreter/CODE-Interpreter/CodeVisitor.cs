@@ -60,17 +60,21 @@ public class CodeVisitor : CodeBaseVisitor<object>
         {
             return VisitVariable(context.variable());
         }
-        else if(context.scanStatement() != null)
+        else if (context.scanStatement() != null)
         {
             return VisitScanStatement(context.scanStatement());
         }
-        else if(context.COMMENT() != null)
+        else if (context.COMMENT() != null)
         {
             return new object();
         }
-        else if(context.ifStatement() != null)
+        else if (context.ifStatement() != null)
         {
             return VisitIfStatement(context.ifStatement());
+        }
+        else if (context.switchStatement() != null)
+        {
+            return VisitSwitchStatement(context.switchStatement());
         }
         else
         {
@@ -376,7 +380,7 @@ public class CodeVisitor : CodeBaseVisitor<object>
     public override object VisitNotExpression([NotNull] CodeParser.NotExpressionContext context)
     {
         var expression = Visit(context.expression());
-        return Operators.NotBoolean(expression);    
+        return Operators.NotBoolean(expression);
     }
 
     public override object VisitParenthesisExpression([NotNull] CodeParser.ParenthesisExpressionContext context)
@@ -445,6 +449,68 @@ public class CodeVisitor : CodeBaseVisitor<object>
                 VisitStatement(statement);
             }
         }
+        return new object();
+    }
+
+    public override object VisitSwitchStatement([NotNull] CodeParser.SwitchStatementContext context)
+    {
+        var expr = Visit(context.expression());
+        bool flag = false;
+
+        foreach (var caseBlock in context.caseBlock())
+        {
+            var caseValue = Visit(caseBlock.expression());
+
+            if (caseValue.Equals(expr))
+            {
+                Visit(caseBlock);
+                flag = true;
+            }
+        }
+
+        if (context.defaultBlock() != null && flag == false)
+        {
+           Visit(context.defaultBlock());
+        }
+
+        return new object();
+    }
+
+    public override object VisitCaseBlock([NotNull] CodeParser.CaseBlockContext context)
+    {
+        var expr = Visit(context.expression());
+
+        if (expr != null)
+        {
+            // Execute the statements inside the if block
+            foreach (var statement in context.statement())
+            {
+                VisitStatement(statement);
+
+                if (statement.GetText().Contains("BREAK"))
+                {
+                    // Return true if a BREAK statement was encountered
+                    break;
+                }
+            }
+        }
+
+        return new object();
+    }
+
+    public override object VisitDefaultBlock([NotNull] CodeParser.DefaultBlockContext context)
+    {
+        foreach (var statement in context.statement())
+        {
+            VisitStatement(statement);
+
+            if (statement.GetText().Contains("BREAK"))
+            {
+                // Return true if a BREAK statement was encountered
+                break;
+            }
+        }
+
         return new object();
     }
 }
