@@ -9,34 +9,34 @@ using System.Text.RegularExpressions;
 using static Antlr4.Runtime.Atn.SemanticContext;
 using System.Text;
 using System.Reflection.Metadata.Ecma335;
-using CODE_Interpreter;
+using CODE_Interpreter.Functions;
 
 public class CodeVisitor : CodeBaseVisitor<object>
 {
     private Dictionary<string, object> Variables = new Dictionary<string, object>();
     private Operators op = new Operators();
 
-    public override object VisitProgram([NotNull] CodeParser.ProgramContext context)
-    {
-        string code = context.GetText().Trim();
-        try
-        {
-            if (code.StartsWith("BEGIN CODE") && code.EndsWith("END CODE"))
-                Console.Write("");
-        }
-        catch
-        {
-            Console.WriteLine("Code must start with 'BEGIN CODE' and end with 'END CODE'.");
-            throw new ArgumentException("Code must start with 'BEGIN CODE' and end with 'END CODE'.");
-        }
+    //public override object VisitProgram([NotNull] CodeParser.ProgramContext context)
+    //{
+    //    string code = context.GetText().Trim();
 
-        // Visit all statements next
-        foreach (var statement in context.statement())
-        {
-            VisitStatement(statement);
-        }
-        return new object();
-    }
+    //    if (code.StartsWith("BEGIN CODE") && code.EndsWith("END CODE"))
+    //    {
+    //        Console.WriteLine("");
+    //    }
+    //    else
+    //    {
+    //        Console.WriteLine("Code must start with 'BEGIN CODE' and end with 'END CODE'.");
+    //        throw new ArgumentException("Code must start with 'BEGIN CODE' and end with 'END CODE'.");
+    //    }
+
+    //    // Visit all statements next
+    //    foreach (var statement in context.statement())
+    //    {
+    //        VisitStatement(statement);
+    //    }
+    //    return new object();
+    //}
 
     public override object VisitStatement([NotNull] CodeParser.StatementContext context)
     {
@@ -64,6 +64,10 @@ public class CodeVisitor : CodeBaseVisitor<object>
         {
             return VisitScanStatement(context.scanStatement());
         }
+        else if(context.COMMENT() != null)
+        {
+            return new object();
+        }
         else if(context.ifStatement() != null)
         {
             return VisitIfStatement(context.ifStatement());
@@ -80,21 +84,21 @@ public class CodeVisitor : CodeBaseVisitor<object>
         var varnames = context.IDENTIFIER();
 
         // remove type
-        var contextstring = context.GetText().Replace(type, "");
+        var contextValue = context.GetText().Replace(type, "");
 
-        var contextParts = contextstring.Split(',');
+        var contextArray = contextValue.Split(',');
         var exp = context.expression();
         int expctr = 0;
 
         // traverse each part
-        for (int x = 0; x < contextParts.Length; x++)
+        for (int x = 0; x < contextArray.Length; x++)
         {
             if (Variables.ContainsKey(varnames[x].GetText()))
             {
                 Console.WriteLine(varnames[x].GetText() + "is already declared");
                 continue;
             }
-            if (contextParts[x].Contains('='))
+            if (contextArray[x].Contains('='))
             {
                 if (expctr < exp.Count())
                 {
@@ -305,9 +309,7 @@ public class CodeVisitor : CodeBaseVisitor<object>
 
     public override object VisitNewlineExpression([NotNull] CodeParser.NewlineExpressionContext context)
     {
-        var leftExpression = Visit(context.expression(0));
-        var rightExpression = Visit(context.expression(1));
-        return op.NewlineSymbol($"{leftExpression}{Environment.NewLine}{rightExpression}");
+        return "\n";
     }
 
     public override object VisitAdditiveExpression([NotNull] CodeParser.AdditiveExpressionContext context)

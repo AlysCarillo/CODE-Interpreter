@@ -2,18 +2,43 @@
 using Antlr4.Runtime.Misc;
 using CODE_Interpreter.Content;
 using CODE_Interpreter;
+using CODE_Interpreter.ErrorHandling;
+using System;
 
-var file = "Content\\tests.txt";
-var fileContents = File.ReadAllText(file);
+bool isContinue = true;
 
-var inputStream = new AntlrInputStream(fileContents);
+while (isContinue)
+{
+    var file = "..\\..\\..\\Content\\tests.txt";
+    var fileContents = File.ReadAllText(file);
 
-// Create a lexer and parser for the code
-var codeLexer = new CodeLexer(inputStream);
-CommonTokenStream commonTokenStream = new CommonTokenStream(codeLexer);
-var codeParser = new CodeParser(commonTokenStream);
-var codeContext = codeParser.program();
+    var inputStream = new AntlrInputStream(fileContents);
 
-// Parse the code and walk the parse tree using the CodeVisitor
-var visitor = new CodeVisitor();
-visitor.VisitProgram(codeContext);
+    // Create a lexer and parser for the code
+    var lexer = new CodeLexer(inputStream);
+    var tokens = new CommonTokenStream(lexer);
+    var parser = new CodeParser(tokens);
+
+    // Error Handling
+    var syntaxHandler = new SyntaxHandler();
+    parser.AddErrorListener(syntaxHandler);
+
+    var codeContext = parser.program();
+
+    // Parse the code and walk the parse tree using the CodeVisitor
+    var visitor = new CodeVisitor();
+    visitor.VisitProgram(codeContext);
+
+    Console.WriteLine("\n");
+    Console.WriteLine("Continue? (Y/N): ");
+    var res = Console.ReadLine()![0];
+
+    isContinue = (res != 'Y' || res != 'y') ? false : true;
+
+    Console.WriteLine("=================================================================================");
+    Console.WriteLine("\n");
+
+}
+
+
+
