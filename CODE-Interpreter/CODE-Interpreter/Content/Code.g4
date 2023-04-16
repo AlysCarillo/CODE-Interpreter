@@ -19,9 +19,7 @@ LPAREN : '(';
 RPAREN : ')';
 COMMA : ',';
 DOT : '.';
-COLON : ':';
 ASSIGN : '=';
-SEMICOLON : ';';
 MULTIPLY : '*';
 DIVIDE : '/';
 MODULO : '%';
@@ -72,6 +70,7 @@ statement : declaration
           | scanStatement
           | ifStatement
           | switchStatement
+          | forStatement
           | COMMENT
           ;
 
@@ -105,6 +104,12 @@ switchStatement : NEWLINE? 'SWITCH' expression NEWLINE
 caseBlock : 'CASE' expression ':' statement* 'BREAK' NEWLINE?;
 
 defaultBlock : 'DEFAULT' ':' statement* 'BREAK' NEWLINE?;
+
+forStatement : NEWLINE? 'FOR' LPAREN assignmentStatement ':' expression ':' assignmentStatement RPAREN NEWLINE
+			  'BEGIN FOR' NEWLINE
+			  statement*
+			  NEWLINE? 'END FOR'
+			  ;
 
 expression : literal                                #literalExpression
            | ESCAPE                                 #EscapeExpression                            

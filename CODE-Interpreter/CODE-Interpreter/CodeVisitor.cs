@@ -76,6 +76,10 @@ public class CodeVisitor : CodeBaseVisitor<object>
         {
             return VisitSwitchStatement(context.switchStatement());
         }
+        else if(context.forStatement() != null)
+        {
+            return VisitForStatement(context.forStatement());
+        }
         else
         {
             throw new InvalidOperationException("Unknown Statement Type");
@@ -471,44 +475,6 @@ public class CodeVisitor : CodeBaseVisitor<object>
         if (context.defaultBlock() != null && flag == false)
         {
             Visit(context.defaultBlock());
-        }
-
-        return new object();
-    }
-
-    public override object VisitCaseBlock([NotNull] CodeParser.CaseBlockContext context)
-    {
-        var expr = Visit(context.expression());
-
-        if (expr != null)
-        {
-            // Execute the statements inside the if block
-            foreach (var statement in context.statement())
-            {
-                VisitStatement(statement);
-
-                if (statement.GetText().Contains("BREAK"))
-                {
-                    // Return true if a BREAK statement was encountered
-                    break;
-                }
-            }
-        }
-
-        return new object();
-    }
-
-    public override object VisitDefaultBlock([NotNull] CodeParser.DefaultBlockContext context)
-    {
-        foreach (var statement in context.statement())
-        {
-            VisitStatement(statement);
-
-            if (statement.GetText().Contains("BREAK"))
-            {
-                // Return true if a BREAK statement was encountered
-                break;
-            }
         }
 
         return new object();

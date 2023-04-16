@@ -1,12 +1,15 @@
 BEGIN CODE
-INT x = 10, y = 21
+INT x = 100, y = 21
 SWITCH x 
 BEGIN SWITCH 
 	CASE (x<18):
 		DISPLAY: "minor"
 		BREAK
-	DEFAULT: 
+	CASE (x > 18):
 		DISPLAY: "adult"
+		BREAK
+	DEFAULT: 
+		DISPLAY: "age input is not given or incorrect input"
 		BREAK		
 END SWITCH
 END CODE
