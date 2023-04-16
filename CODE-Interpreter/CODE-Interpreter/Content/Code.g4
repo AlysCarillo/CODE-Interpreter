@@ -11,6 +11,8 @@ END_IF : 'END IF';
 ELSE : 'ELSE';
 ELSE_IF : 'ELSE IF';
 WHILE : 'WHILE';
+BEGIN_WHILE : 'BEGIN WHILE';
+END_WHILE : 'END WHILE';
 BEGIN : 'BEGIN CODE';
 CODE : 'CODE';
 END : 'END CODE';
@@ -69,6 +71,7 @@ statement : declaration
           | displayStatement
           | scanStatement
           | ifStatement
+          | whileStatement
           | switchStatement
           | forStatement
           | COMMENT
@@ -93,7 +96,7 @@ literal :  INT_LITERAL
 displayStatement : NEWLINE? DISPLAY':' expression NEWLINE?;
 scanStatement : SCAN ':' IDENTIFIER (COMMA IDENTIFIER)* NEWLINE?;
 ifStatement : NEWLINE? IF LPAREN (expression compareOP|boolOP expression) RPAREN NEWLINE BEGIN_IF NEWLINE statement* NEWLINE END_IF;
-
+whileStatement: NEWLINE? WHILE LPAREN (expression compareOP|boolOP expression) RPAREN NEWLINE BEGIN_WHILE NEWLINE statement* NEWLINE END_WHILE;
 switchStatement : NEWLINE? 'SWITCH' expression NEWLINE
                  'BEGIN SWITCH' NEWLINE
                  (caseBlock)+
