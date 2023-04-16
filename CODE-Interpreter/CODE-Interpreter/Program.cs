@@ -19,9 +19,9 @@ while (isContinue)
     var tokens = new CommonTokenStream(lexer);
     var parser = new CodeParser(tokens);
 
-    // Error Handling
-    var syntaxHandler = new SyntaxHandler();
-    parser.AddErrorListener(syntaxHandler);
+    //// Error Handling
+    //var syntaxHandler = new SyntaxHandler();
+    //parser.AddErrorListener(syntaxHandler);
 
     var codeContext = parser.program();
 

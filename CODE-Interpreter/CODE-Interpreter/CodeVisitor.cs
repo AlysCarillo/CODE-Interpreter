@@ -458,13 +458,17 @@ public class CodeVisitor : CodeBaseVisitor<object>
 
     public override object VisitSwitchStatement([NotNull] CodeParser.SwitchStatementContext context)
     {
+        //get the expression in which the switch would use as a base for evaluation
         var expr = Visit(context.expression());
+        //this boolean is for flagging whenever a correct case is found
         bool flag = false;
 
+        //loop all the given case blocks
         foreach (var caseBlock in context.caseBlock())
         {
             var caseValue = Visit(caseBlock.expression());
 
+            //finding the case where expr satisfies the caseValue and visit that case block
             if (caseValue is bool && Convert.ToBoolean(caseValue) || caseValue.Equals(expr))
             {
                 Visit(caseBlock);
@@ -472,9 +476,30 @@ public class CodeVisitor : CodeBaseVisitor<object>
             }
         }
 
+        //if no satisfactory case block is found, default block is then automatically run
         if (context.defaultBlock() != null && flag == false)
         {
             Visit(context.defaultBlock());
+        }
+
+        return new object();
+    }
+
+    public override object VisitForStatement([NotNull] CodeParser.ForStatementContext context)
+    {
+        var conditionExpr = Visit(context.expression());
+
+        // Evaluate the condition expression and continue while it's true
+        while (conditionExpr is bool && Convert.ToBoolean(conditionExpr))
+        {
+            // Evaluate the body of the for loop
+            foreach (var stmt in context.statement())
+            {
+                Visit(stmt);
+            }
+
+            // Evaluate the increment statement
+            Visit(context.assignmentStatement(1));
         }
 
         return new object();
