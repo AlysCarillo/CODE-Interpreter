@@ -60,17 +60,25 @@ public class CodeVisitor : CodeBaseVisitor<object>
         {
             return VisitVariable(context.variable());
         }
-        else if(context.scanStatement() != null)
+        else if (context.scanStatement() != null)
         {
             return VisitScanStatement(context.scanStatement());
         }
-        else if(context.COMMENT() != null)
+        else if (context.COMMENT() != null)
         {
             return new object();
         }
-        else if(context.ifStatement() != null)
+        else if (context.ifStatement() != null)
         {
             return VisitIfStatement(context.ifStatement());
+        }
+        else if (context.switchStatement() != null)
+        {
+            return VisitSwitchStatement(context.switchStatement());
+        }
+        else if(context.forStatement() != null)
+        {
+            return VisitForStatement(context.forStatement());
         }
         else
         {
@@ -376,7 +384,7 @@ public class CodeVisitor : CodeBaseVisitor<object>
     public override object VisitNotExpression([NotNull] CodeParser.NotExpressionContext context)
     {
         var expression = Visit(context.expression());
-        return Operators.NotBoolean(expression);    
+        return Operators.NotBoolean(expression);
     }
 
     public override object VisitParenthesisExpression([NotNull] CodeParser.ParenthesisExpressionContext context)
@@ -445,6 +453,55 @@ public class CodeVisitor : CodeBaseVisitor<object>
                 VisitStatement(statement);
             }
         }
+        return new object();
+    }
+
+    public override object VisitSwitchStatement([NotNull] CodeParser.SwitchStatementContext context)
+    {
+        //get the expression in which the switch would use as a base for evaluation
+        var expr = Visit(context.expression());
+        //this boolean is for flagging whenever a correct case is found
+        bool flag = false;
+
+        //loop all the given case blocks
+        foreach (var caseBlock in context.caseBlock())
+        {
+            var caseValue = Visit(caseBlock.expression());
+
+            //finding the case where expr satisfies the caseValue and visit that case block
+            if (caseValue is bool && Convert.ToBoolean(caseValue) || caseValue.Equals(expr))
+            {
+                Visit(caseBlock);
+                flag = true;
+            }
+        }
+
+        //if no satisfactory case block is found, default block is then automatically run
+        if (context.defaultBlock() != null && flag == false)
+        {
+            Visit(context.defaultBlock());
+        }
+
+        return new object();
+    }
+
+    public override object VisitForStatement([NotNull] CodeParser.ForStatementContext context)
+    {
+        var conditionExpr = Visit(context.expression());
+
+        // Evaluate the condition expression and continue while it's true
+        while (conditionExpr is bool && Convert.ToBoolean(conditionExpr))
+        {
+            // Evaluate the body of the for loop
+            foreach (var stmt in context.statement())
+            {
+                Visit(stmt);
+            }
+
+            // Evaluate the increment statement
+            Visit(context.assignmentStatement(1));
+        }
+
         return new object();
     }
 }
