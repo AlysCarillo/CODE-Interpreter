@@ -461,7 +461,7 @@ public class CodeVisitor : CodeBaseVisitor<object>
         {
             var caseValue = Visit(caseBlock.expression());
 
-            if (caseValue.Equals(expr))
+            if (caseValue is bool && Convert.ToBoolean(caseValue) || caseValue.Equals(expr))
             {
                 Visit(caseBlock);
                 flag = true;
@@ -470,7 +470,7 @@ public class CodeVisitor : CodeBaseVisitor<object>
 
         if (context.defaultBlock() != null && flag == false)
         {
-           Visit(context.defaultBlock());
+            Visit(context.defaultBlock());
         }
 
         return new object();
