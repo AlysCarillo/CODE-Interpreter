@@ -108,9 +108,9 @@ caseBlock : 'CASE' expression ':' statement* 'BREAK' NEWLINE?;
 
 defaultBlock : 'DEFAULT' ':' statement* 'BREAK' NEWLINE?;
 
-forStatement : NEWLINE? 'FOR' LPAREN assignmentStatement ':' expression ':' assignmentStatement RPAREN NEWLINE
+forStatement : NEWLINE? 'FOR' LPAREN statement ':' expression ':' assignmentStatement RPAREN NEWLINE
 			  'BEGIN FOR' NEWLINE
-			  statement*
+			  line*
 			  NEWLINE? 'END FOR'
 			  ;
 
