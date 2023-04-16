@@ -453,7 +453,7 @@ public class CodeVisitor : CodeBaseVisitor<object>
                 VisitStatement(statement);
             }
         }
-        else
+        else if (context.elseIfBlock() != null)
         {
             foreach (var elseIfBlock in context.elseIfBlock())
             {
@@ -467,12 +467,12 @@ public class CodeVisitor : CodeBaseVisitor<object>
                     return new object();
                 }
             }
-            if (context.elseBlock != null)
+        }
+        else if (context.elseBlock() != null)
+        {
+            foreach (var statement in context.elseBlock().statement())
             {
-                foreach (var statement in context.elseBlock().statement())
-                {
-                    VisitStatement(statement);
-                }
+                VisitStatement(statement);
             }
         }
         return new object();
