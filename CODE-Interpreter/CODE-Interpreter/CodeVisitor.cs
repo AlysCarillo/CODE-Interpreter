@@ -457,6 +457,28 @@ public class CodeVisitor : CodeBaseVisitor<object>
                 VisitStatement(statement);
             }
         }
+        else if (context.elseIfBlock() != null)
+        {
+            foreach (var elseIfBlock in context.elseIfBlock())
+            {
+                var elseIfCondition = (bool)Visit(elseIfBlock.expression());
+                if (elseIfCondition)
+                {
+                    foreach (var statement in elseIfBlock.statement())
+                    {
+                        VisitStatement(statement);
+                    }
+                    return new object();
+                }
+            }
+        }
+        else if (context.elseBlock() != null)
+        {
+            foreach (var statement in context.elseBlock().statement())
+            {
+                VisitStatement(statement);
+            }
+        }
         return new object();
     }
 
