@@ -487,19 +487,34 @@ public class CodeVisitor : CodeBaseVisitor<object>
 
     public override object VisitForStatement([NotNull] CodeParser.ForStatementContext context)
     {
-        var conditionExpr = Visit(context.expression());
+        // Get the initialization, condition, and increment statements
+        var statement = context.statement();
+        var conditionExpr = context.expression();
+        var increment = context.assignmentStatement();
+
+        // Get all the lines after BEGIN FOR and before END FOR
+        var lines = context.line();
+
+        // Visit the loop initialization statement
+        Visit(statement);
+
+        // Evaluate the loop condition expression
+        bool loopCondition = Convert.ToBoolean(Visit(conditionExpr));
 
         // Evaluate the condition expression and continue while it's true
-        while (conditionExpr is bool && Convert.ToBoolean(conditionExpr))
+        while (loopCondition)
         {
             // Evaluate the body of the for loop
-            foreach (var stmt in context.statement())
+            foreach (var line in lines)
             {
-                Visit(stmt);
+                Visit(line);
             }
 
             // Evaluate the increment statement
-            Visit(context.assignmentStatement(1));
+            Visit(increment);
+
+            // Evaluate the loop condition expression again
+            loopCondition = Convert.ToBoolean(Visit(conditionExpr));
         }
 
         return new object();

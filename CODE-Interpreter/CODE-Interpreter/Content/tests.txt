@@ -1,5 +1,13 @@
 BEGIN CODE
-    INT x = 4, y
-    y = 5
-    DISPLAY: x & " * " & y & " = " & x*y & $
+INT a=100, b=200, c=300, x, y
+DISPLAY: "Enter x: "
+SCAN: x
+DISPLAY: &
+FOR (y = 0 : y <= x : y = y + 1)
+BEGIN FOR
+    IF (y % 2 == 0)
+    BEGIN IF
+        DISPLAY: y & $
+    END IF
+END FOR
 END CODE
