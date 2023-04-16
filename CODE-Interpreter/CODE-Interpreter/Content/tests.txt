@@ -1,8 +1,5 @@
 BEGIN CODE
-	INT x = 10
-	INT y = 5
-	IF (x > y AND y == 5)
-	BEGIN IF
-		DISPLAY: x
-	END IF
+    INT x = 4, y
+    y = 5
+    DISPLAY: x & " * " & y & " = " & x*y & $
 END CODE

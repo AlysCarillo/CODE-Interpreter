@@ -19,9 +19,7 @@ LPAREN : '(';
 RPAREN : ')';
 COMMA : ',';
 DOT : '.';
-COLON : ':';
 ASSIGN : '=';
-SEMICOLON : ';';
 MULTIPLY : '*';
 DIVIDE : '/';
 MODULO : '%';
@@ -71,6 +69,8 @@ statement : declaration
           | displayStatement
           | scanStatement
           | ifStatement
+          | switchStatement
+          | forStatement
           | COMMENT
           ;
 
@@ -94,20 +94,36 @@ displayStatement : NEWLINE? DISPLAY':' expression NEWLINE?;
 scanStatement : SCAN ':' IDENTIFIER (COMMA IDENTIFIER)* NEWLINE?;
 ifStatement : NEWLINE? IF LPAREN (expression compareOP|boolOP expression) RPAREN NEWLINE BEGIN_IF NEWLINE statement* NEWLINE END_IF;
 
-expression : literal                                #literalExpression
-           | ESCAPE                                 #EscapeExpression                            
-           | newlineOP                              #newlineExpression 
-           | IDENTIFIER                             #identifierExpression
-           | expression CONCAT expression 		    #concatExpression
+switchStatement : NEWLINE? 'SWITCH' expression NEWLINE
+                 'BEGIN SWITCH' NEWLINE
+                 (caseBlock)+
+                 defaultBlock?
+                 NEWLINE? 'END SWITCH'
+                 ;
+
+caseBlock : 'CASE' expression ':' statement* 'BREAK' NEWLINE?;
+
+defaultBlock : 'DEFAULT' ':' statement* 'BREAK' NEWLINE?;
+
+forStatement : NEWLINE? 'FOR' LPAREN assignmentStatement ':' expression ':' assignmentStatement RPAREN NEWLINE
+			  'BEGIN FOR' NEWLINE
+			  statement*
+			  NEWLINE? 'END FOR'
+			  ;
+
+expression : unaryOP expression                     #unaryExpression
            | LPAREN expression RPAREN               #parenthesisExpression
            | expression multOP expression           #multiplicationExpression
            | expression addOP expression            #additiveExpression
            | expression compareOP expression        #comparisonExpression
            | expression boolOP expression           #booleanExpression
-           | unaryOP expression                     #unaryExpression
            | NOT expression                         #notExpression
+           | literal                                #literalExpression
+           | newlineOP                              #newlineExpression 
+           | ESCAPE                                 #escapeExpression                            
+           | expression CONCAT expression 		    #concatExpression
+           | IDENTIFIER                             #identifierExpression
            ;
-
 
 multOP : MULTIPLY | DIVIDE | MODULO;
 addOP : PLUS | MINUS;
