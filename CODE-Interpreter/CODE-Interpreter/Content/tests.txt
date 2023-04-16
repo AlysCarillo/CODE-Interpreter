@@ -1,5 +1,20 @@
 BEGIN CODE
-    INT x = 4, y
+    INT x, y
+    x = 10
     y = 5
-    DISPLAY: x & " * " & y & " = " & x*y & $
+    IF (x == 10)
+    BEGIN IF
+        IF (y < 5)
+        BEGIN IF
+            DISPLAY: x
+        END IF
+        ELSE IF (y == 5)
+        BEGIN IF
+            DISPLAY: "y is equal to 5"
+        END IF
+        ELSE
+        BEGIN IF
+            DISPLAY: "y is greater than 5"
+        END IF
+    END IF
 END CODE
