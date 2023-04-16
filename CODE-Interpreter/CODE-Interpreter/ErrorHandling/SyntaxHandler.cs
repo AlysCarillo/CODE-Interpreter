@@ -1,4 +1,5 @@
 ﻿using Antlr4.Runtime;
+using System.IO;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,5 +17,6 @@ namespace CODE_Interpreter.ErrorHandling
             Console.WriteLine($"{errorType} at line {line}: {msg}");
             Environment.Exit(400);
         }
+
     }
 }

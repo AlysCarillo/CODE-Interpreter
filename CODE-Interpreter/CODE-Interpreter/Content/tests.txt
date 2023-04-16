@@ -1,3 +1,8 @@
 BEGIN CODE
-INT x = 5
-END 
+	INT x = 10
+	INT y = 5
+	IF (x > y AND y == 5)
+	BEGIN IF
+		DISPLAY: x
+	END IF
+END CODE

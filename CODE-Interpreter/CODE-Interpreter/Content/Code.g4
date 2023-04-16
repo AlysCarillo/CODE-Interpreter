@@ -57,17 +57,17 @@ STRING_LITERAL : ('"' ~'"'* '"') | ('\'' ~'\''* '\'');
 
 WHITESPACE : [ \t\r\n] -> skip;
 COMMENT : '#' ~[\n]* -> skip;
-NEWLINE: '\r'? '\n'| '\r';
+NEWLINE: '\r' '\n' | '\r';
 
 // Parser rules
 
 program : NEWLINE? BEGIN NEWLINE statement* NEWLINE END;
 line: (declaration | statement | COMMENT) NEWLINE;
 
-statement : assignmentStatement
-          | declaration
+statement : declaration
           | variable
           | variableAssignment
+          | assignmentStatement
           | displayStatement
           | scanStatement
           | ifStatement
@@ -95,7 +95,10 @@ scanStatement : SCAN ':' IDENTIFIER (COMMA IDENTIFIER)* NEWLINE?;
 ifStatement : NEWLINE? IF LPAREN (expression compareOP|boolOP expression) RPAREN NEWLINE BEGIN_IF NEWLINE statement* NEWLINE END_IF;
 
 expression : literal                                #literalExpression
+           | ESCAPE                                 #EscapeExpression                            
+           | newlineOP                              #newlineExpression 
            | IDENTIFIER                             #identifierExpression
+           | expression CONCAT expression 		    #concatExpression
            | LPAREN expression RPAREN               #parenthesisExpression
            | expression multOP expression           #multiplicationExpression
            | expression addOP expression            #additiveExpression
@@ -103,9 +106,6 @@ expression : literal                                #literalExpression
            | expression boolOP expression           #booleanExpression
            | unaryOP expression                     #unaryExpression
            | NOT expression                         #notExpression
-           | expression CONCAT expression 		    #concatExpression
-           | ESCAPE                                 #EscapeExpression                            
-           | expression newlineOP expression        #newlineExpression
            ;
 
 
