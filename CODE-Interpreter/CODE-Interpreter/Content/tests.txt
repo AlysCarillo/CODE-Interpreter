@@ -1,20 +1,15 @@
 BEGIN CODE
-    INT x, y
-    x = 10
-    y = 5
-    IF (x == 10)
-    BEGIN IF
-        IF (y < 5)
-        BEGIN IF
-            DISPLAY: x
-        END IF
-        ELSE IF (y == 5)
-        BEGIN IF
-            DISPLAY: "y is equal to 5"
-        END IF
-        ELSE
-        BEGIN IF
-            DISPLAY: "y is greater than 5"
-        END IF
-    END IF
+INT a=100, b=200, c=300, x=1, y
+BOOL d="TRUE"
+WHILE(x < 5)
+BEGIN WHILE
+	y = 1
+	WHILE(y <= 5)
+	BEGIN WHILE
+		DISPLAY: x & " * " & y & " = " & x * y & $
+		y = y + 1
+	END WHILE
+	x = x + 1
+	DISPLAY: $
+END WHILE
 END CODE
