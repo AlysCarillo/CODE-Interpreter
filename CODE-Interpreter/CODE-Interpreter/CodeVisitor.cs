@@ -76,9 +76,13 @@ public class CodeVisitor : CodeBaseVisitor<object>
         {
             return VisitSwitchStatement(context.switchStatement());
         }
-        else if(context.forStatement() != null)
+        else if (context.forStatement() != null)
         {
             return VisitForStatement(context.forStatement());
+        }
+        else if (context.whileStatement() != null)
+        {
+            return VisitWhileStatement(context.whileStatement());
         }
         else
         {
@@ -517,6 +521,19 @@ public class CodeVisitor : CodeBaseVisitor<object>
             loopCondition = Convert.ToBoolean(Visit(conditionExpr));
         }
 
+        return new object();
+    }
+
+    public override object VisitWhileStatement([NotNull] CodeParser.WhileStatementContext context)
+    {
+        while ((bool)Visit(context.expression()))
+        {
+            // Execute the statements inside the while block
+            foreach (var statement in context.statement())
+            {
+                VisitStatement(statement);
+            }
+        }
         return new object();
     }
 }
