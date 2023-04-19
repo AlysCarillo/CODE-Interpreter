@@ -156,9 +156,7 @@ public class CodeVisitor : CodeBaseVisitor<object>
 
                     if (expressionValue.GetType() != GetTypeFromString(type))
                     {
-                        Console.WriteLine($"Type mismatch: Cannot assign {expressionValue} to variable {varnames[x].GetText()} of type {type}");
-                        //throw new ArgumentException($"Type mismatch: Cannot assign {expressionValue} to variable {varnames[x].GetText()} of type {type}");
-                        Environment.Exit(400);
+                        throw new ArgumentException($"Type mismatch: Cannot assign {expressionValue} to variable {varnames[x].GetText()} of type {type}");
                     }
 
                     Variables[varnames[x].GetText()] = expressionValue;
@@ -530,7 +528,7 @@ public class CodeVisitor : CodeBaseVisitor<object>
                 {
                     throw new ArgumentNullException($"Inputted value is null");
                 }
-   
+
             }
             else
             {

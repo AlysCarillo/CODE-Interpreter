@@ -1,4 +1,4 @@
 BEGIN CODE
-INT x=5
+INT x="Hellow"
 DISPLAY: x
 END CODE
