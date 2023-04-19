@@ -90,7 +90,7 @@ public class CodeVisitor : CodeBaseVisitor<object>
         }
     }
 
-    public override List<object?> VisitDeclaration([NotNull] CodeParser.DeclarationContext context)
+    /*public override List<object?> VisitDeclaration([NotNull] CodeParser.DeclarationContext context)
     {
         var type = context.dataType().GetText();
         var varnames = context.IDENTIFIER();
@@ -126,6 +126,70 @@ public class CodeVisitor : CodeBaseVisitor<object>
         }
 
         return new List<object?>();
+    }*/
+    public override List<object?> VisitDeclaration([NotNull] CodeParser.DeclarationContext context)
+    {
+        var type = context.dataType().GetText();
+        var varnames = context.IDENTIFIER();
+
+        // remove type
+        var contextValue = context.GetText().Replace(type, "");
+
+        var contextArray = contextValue.Split(',');
+        var exp = context.expression();
+        int expctr = 0;
+
+        // traverse each part
+        for (int x = 0; x < contextArray.Length; x++)
+        {
+            if (Variables.ContainsKey(varnames[x].GetText()))
+            {
+                Console.WriteLine(varnames[x].GetText() + "is already declared");
+                continue;
+            }
+
+            if (contextArray[x].Contains('='))
+            {
+                if (expctr < exp.Count())
+                {
+                    var expressionValue = Visit(exp[expctr]);
+
+                    if (expressionValue.GetType() != GetTypeFromString(type))
+                    {
+                        throw new ArgumentException($"Type mismatch: Cannot assign {expressionValue} to variable {varnames[x].GetText()} of type {type}");
+                    }
+
+                    Variables[varnames[x].GetText()] = expressionValue;
+                    expctr++;
+                }
+            }
+            else
+            {
+                Variables[varnames[x].GetText()] = new object();
+            }
+
+        }
+
+        return new List<object?>();
+    }
+
+    private Type GetTypeFromString(string type)
+    {
+        switch (type)
+        {
+            case "INT":
+                return typeof(int);
+            case "CHAR":
+                return typeof(char);
+            case "BOOL":
+                return typeof(bool);
+            case "FLOAT":
+                return typeof(float);
+            case "STRING":
+                return typeof(string);
+            default:
+                throw new ArgumentException("Invalid data type");
+        }
     }
 
     public override object VisitVariable([NotNull] CodeParser.VariableContext context)
