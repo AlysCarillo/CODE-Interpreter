@@ -7,7 +7,7 @@ using CODE_Interpreter.Content;
 
 namespace CODE_Interpreter.Functions
 {
-    internal class Operators : CodeBaseVisitor<object>
+    public class Operators : CodeBaseVisitor<object>
     {
         public static object Add(object? left, object? right)
         {
