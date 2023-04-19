@@ -7,9 +7,9 @@ using System.Text;
 using System.Threading.Tasks;
 using CODE_Interpreter.Content;
 
-namespace CODE_Interpreter.ErrorHandling
+namespace CODE_Interpreter.Methods
 {
-    internal class SyntaxHandler : BaseErrorListener
+    public class ErrorHandling : BaseErrorListener
     {
         public override void SyntaxError(IRecognizer recognizer, IToken offendingSymbol, int line, int charPositionInLine, string msg, RecognitionException e)
         {
