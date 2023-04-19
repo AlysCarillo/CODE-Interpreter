@@ -95,9 +95,9 @@ literal :  INT_LITERAL
         
 displayStatement : NEWLINE* DISPLAY':' expression NEWLINE*;
 scanStatement : SCAN ':' IDENTIFIER (COMMA IDENTIFIER)* NEWLINE*;
-ifStatement : NEWLINE* IF LPAREN (expression compareOP|boolOP expression) RPAREN NEWLINE BEGIN_IF NEWLINE statement* NEWLINE END_IF;
+ifStatement : NEWLINE* IF expression NEWLINE BEGIN_IF NEWLINE statement* NEWLINE END_IF (elseIfBlock)* (elseBlock)?;
 whileStatement: NEWLINE* WHILE LPAREN (expression compareOP|boolOP expression) RPAREN NEWLINE BEGIN_WHILE NEWLINE statement* NEWLINE END_WHILE;
-elseIfBlock : NEWLINE* ELSE_IF LPAREN (expression compareOP|boolOP expression) RPAREN NEWLINE BEGIN_IF NEWLINE statement* NEWLINE END_IF;
+elseIfBlock : NEWLINE* ELSE_IF expression NEWLINE BEGIN_IF NEWLINE statement* NEWLINE END_IF;
 elseBlock: NEWLINE* ELSE NEWLINE BEGIN_IF NEWLINE statement* NEWLINE END_IF;
 switchStatement : NEWLINE* 'SWITCH' expression NEWLINE
                  'BEGIN SWITCH' NEWLINE
