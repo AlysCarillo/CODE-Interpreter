@@ -94,7 +94,7 @@ literal :  INT_LITERAL
         ;
         
 displayStatement : NEWLINE* DISPLAY':' expression NEWLINE*;
-scanStatement : SCAN ':' IDENTIFIER (COMMA IDENTIFIER)* NEWLINE*;
+scanStatement : NEWLINE* SCAN ':' IDENTIFIER (COMMA IDENTIFIER)* NEWLINE*;
 ifStatement : NEWLINE* IF expression NEWLINE BEGIN_IF NEWLINE statement* NEWLINE END_IF (elseIfBlock)* (elseBlock)?;
 elseIfBlock : NEWLINE* ELSE_IF expression NEWLINE BEGIN_IF NEWLINE statement* NEWLINE END_IF;
 elseBlock: NEWLINE* ELSE NEWLINE BEGIN_IF NEWLINE statement* NEWLINE END_IF;

@@ -156,7 +156,9 @@ public class CodeVisitor : CodeBaseVisitor<object>
 
                     if (expressionValue.GetType() != GetTypeFromString(type))
                     {
-                        throw new ArgumentException($"Type mismatch: Cannot assign {expressionValue} to variable {varnames[x].GetText()} of type {type}");
+                        Console.WriteLine($"Type mismatch: Cannot assign {expressionValue} to variable {varnames[x].GetText()} of type {type}");
+                        //throw new ArgumentException($"Type mismatch: Cannot assign {expressionValue} to variable {varnames[x].GetText()} of type {type}");
+                        Environment.Exit(400);
                     }
 
                     Variables[varnames[x].GetText()] = expressionValue;
@@ -460,7 +462,7 @@ public class CodeVisitor : CodeBaseVisitor<object>
         return Visit(context.expression());
     }
 
-    public override object VisitScanStatement([NotNull] CodeParser.ScanStatementContext context)
+    /*public override object VisitScanStatement([NotNull] CodeParser.ScanStatementContext context)
     {
         var input = Console.ReadLine();
         var inputs = input!.Split(',').Select(s => s.Trim()).ToArray();
@@ -499,6 +501,79 @@ public class CodeVisitor : CodeBaseVisitor<object>
             {
                 throw new ArgumentException($"Invalid input for variable {idName}");
             }
+        }
+
+        return new object();
+    }*/
+    public override object VisitScanStatement([NotNull] CodeParser.ScanStatementContext context)
+    {
+        var identifier = context.IDENTIFIER();
+        foreach (var i in identifier)
+        {
+            var input = Console.ReadLine();
+
+            if (Variables.ContainsKey(i.GetText()))
+            {
+                if (input != null)
+                {
+                    var variableType = GetTypeFromString(Variables[i.GetText()].GetType().Name.ToUpper());
+                    var inputValue = ParseInput(input, variableType);
+
+                    if (inputValue == null)
+                    {
+                        throw new ArgumentException($"Input value {input} is not of the expected type {variableType}");
+                    }
+
+                    Variables[i.GetText()] = inputValue;
+                }
+                else
+                {
+                    throw new ArgumentNullException($"Inputted value is null");
+                }
+   
+            }
+            else
+            {
+                Console.WriteLine($"Variable {i.GetText()} not declared.");
+            }
+        }
+
+        return new object();
+    }
+
+    private object ParseInput(string input, Type type)
+    {
+        if (type == typeof(int))
+        {
+            if (int.TryParse(input, out int result))
+            {
+                return result;
+            }
+        }
+        else if (type == typeof(char))
+        {
+            if (char.TryParse(input, out char result))
+            {
+                return result;
+            }
+        }
+        else if (type == typeof(bool))
+        {
+            if (bool.TryParse(input, out bool result))
+            {
+                return result;
+            }
+        }
+        else if (type == typeof(float))
+        {
+            if (float.TryParse(input, out float result))
+            {
+                return result;
+            }
+        }
+        else if (type == typeof(string))
+        {
+            return input;
         }
 
         return new object();
