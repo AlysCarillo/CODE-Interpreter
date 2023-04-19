@@ -2,7 +2,7 @@ grammar Code;
 
 // Lexical rules
 
-SCAN : 'SCAN: ';  
+SCAN : 'SCAN';  
 DISPLAY : 'DISPLAY';
 
 IF : 'IF';
@@ -64,16 +64,16 @@ NEWLINE: '\r' '\n' | '\r';
 program : NEWLINE* BEGIN NEWLINE statement* NEWLINE END;
 line: (declaration | statement | COMMENT) NEWLINE;
 
-statement : declaration
-          | variable
-          | variableAssignment
-          | assignmentStatement
-          | displayStatement
-          | scanStatement
-          | ifStatement
+statement : forStatement
           | whileStatement
           | switchStatement
-          | forStatement
+          | ifStatement
+          | scanStatement
+          | displayStatement
+          | assignmentStatement
+          | variableAssignment
+          | declaration
+          | variable
           | COMMENT
           ;
 
@@ -94,11 +94,13 @@ literal :  INT_LITERAL
         ;
         
 displayStatement : NEWLINE* DISPLAY':' expression NEWLINE*;
-scanStatement : SCAN ':' IDENTIFIER (COMMA IDENTIFIER)* NEWLINE*;
-ifStatement : NEWLINE* IF LPAREN (expression compareOP|boolOP expression) RPAREN NEWLINE BEGIN_IF NEWLINE statement* NEWLINE END_IF;
-whileStatement: NEWLINE* WHILE LPAREN (expression compareOP|boolOP expression) RPAREN NEWLINE BEGIN_WHILE NEWLINE statement* NEWLINE END_WHILE;
-elseIfBlock : NEWLINE* ELSE_IF LPAREN (expression compareOP|boolOP expression) RPAREN NEWLINE BEGIN_IF NEWLINE statement* NEWLINE END_IF;
+scanStatement : SCAN':' IDENTIFIER (COMMA IDENTIFIER)* NEWLINE*;
+ifStatement : NEWLINE* IF expression NEWLINE BEGIN_IF NEWLINE statement* NEWLINE END_IF (elseIfBlock)* (elseBlock)?;
+elseIfBlock : NEWLINE* ELSE_IF expression NEWLINE BEGIN_IF NEWLINE statement* NEWLINE END_IF;
 elseBlock: NEWLINE* ELSE NEWLINE BEGIN_IF NEWLINE statement* NEWLINE END_IF;
+
+whileStatement: NEWLINE* WHILE expression NEWLINE BEGIN_WHILE NEWLINE statement* NEWLINE END_WHILE;
+
 switchStatement : NEWLINE* 'SWITCH' expression NEWLINE
                  'BEGIN SWITCH' NEWLINE
                  (caseBlock)+
