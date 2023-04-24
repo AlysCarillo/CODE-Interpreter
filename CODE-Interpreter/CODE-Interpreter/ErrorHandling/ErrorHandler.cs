@@ -1,4 +1,5 @@
 ﻿using Antlr4.Runtime;
+using Antlr4.Runtime.Misc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +10,7 @@ namespace CODE_Interpreter.ErrorHandling
 {
     public class ErrorHandler
     {
-        public static bool HandleTypeError(ParserRuleContext context, object? obj, Type? type, string location)
+        public static bool HandleTypeError([NotNull] ParserRuleContext context, object? obj, Type? type, string location)
         {
             if (obj is int || obj is float || obj is bool || obj is char || obj is string)
             {

@@ -1,6 +1,4 @@
 BEGIN CODE
-	FLOAT x
-	INT y
-	SCAN: x, y
-	DISPLAY: x & $ & y
+INT a = 5, b 
+STRING c = "hello"
 END CODE
