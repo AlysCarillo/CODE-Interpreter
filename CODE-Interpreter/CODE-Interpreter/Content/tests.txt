@@ -1,4 +1,3 @@
 BEGIN CODE
-INT x="Hellow"
-DISPLAY: x
+	BOOL d=FALSE 
 END CODE

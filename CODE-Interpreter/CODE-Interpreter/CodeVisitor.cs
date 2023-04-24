@@ -48,18 +48,18 @@ public class CodeVisitor : CodeBaseVisitor<object>
         {
             return VisitDisplayStatement(context.displayStatement());
         }
-        else if (context.variableAssignment() != null)
-        {
-            return VisitVariableAssignment(context.variableAssignment());
-        }
-        else if (context.declaration() != null)
-        {
-            return VisitDeclaration(context.declaration());
-        }
-        else if (context.variable() != null)
-        {
-            return VisitVariable(context.variable());
-        }
+        //else if (context.variableAssignment() != null)
+        //{
+        //    return VisitVariableAssignment(context.variableAssignment());
+        //}
+        ////else if (context.declaration() != null)
+        ////{
+        ////    return VisitDeclaration(context.declaration());
+        ////}
+        //else if (context.variable() != null)
+        //{
+        //    return VisitVariable(context.variable());
+        //}
         else if (context.scanStatement() != null)
         {
             return VisitScanStatement(context.scanStatement());
@@ -156,7 +156,9 @@ public class CodeVisitor : CodeBaseVisitor<object>
 
                     if (expressionValue.GetType() != GetTypeFromString(type))
                     {
-                        throw new ArgumentException($"Type mismatch: Cannot assign {expressionValue} to variable {varnames[x].GetText()} of type {type}");
+                        Console.WriteLine($"Type mismatch: Cannot assign {expressionValue} to variable {varnames[x].GetText()} of type {type}");
+                        //throw new ArgumentException($"Type mismatch: Cannot assign {expressionValue} to variable {varnames[x].GetText()} of type {type}");
+                        Environment.Exit(400);
                     }
 
                     Variables[varnames[x].GetText()] = expressionValue;
@@ -289,16 +291,16 @@ public class CodeVisitor : CodeBaseVisitor<object>
         {
             return float.Parse(context.FLOAT_LITERAL().GetText());
         }
-        else if (context.STRING_LITERAL() != null)
-        {
-            string text = context.STRING_LITERAL().GetText();
-            // Remove the enclosing double quotes and escape sequences
-            text = text.Substring(1, text.Length - 2).Replace("\\\\", "\\").Replace("\\\"", "\"");
-            return text;
-        }
         else if (context.BOOL_LITERAL() != null)
         {
-            return bool.Parse(context.BOOL_LITERAL().GetText());
+            return bool.Parse(context.BOOL_LITERAL().GetText()).Equals("\"TRUE\"");
+        }
+        else if (context.STRING_LITERAL() != null)
+        {
+            return context.STRING_LITERAL().GetText()[1..^1];
+            //// Remove the enclosing double quotes and escape sequences
+            //text = text.Substring(1, text.Length - 2).Replace("\\\\", "\\").Replace("\\\"", "\"");
+            //return text;
         }
         else
         {
@@ -325,7 +327,7 @@ public class CodeVisitor : CodeBaseVisitor<object>
         }
         else if (context.literal().BOOL_LITERAL() is { } b)
         {
-            return bool.Parse(b.GetText().ToString().ToUpper());
+            return b.GetText().Equals("\"TRUE\"");
         }
         else if (context.literal().STRING_LITERAL() is { } s)
         {
@@ -379,8 +381,11 @@ public class CodeVisitor : CodeBaseVisitor<object>
         }
         else
         {
-            throw new Exception($"Variable {identifier} is not declared");
+            Console.WriteLine($"Variable {identifier} is not declared");
+            //throw new Exception($"Variable {identifier} is not declared");
+            Environment.Exit(400);
         }
+        return new object();
     }
 
     public override object VisitNewlineExpression([NotNull] CodeParser.NewlineExpressionContext context)
@@ -460,7 +465,7 @@ public class CodeVisitor : CodeBaseVisitor<object>
         return Visit(context.expression());
     }
 
-    /*public override object VisitScanStatement([NotNull] CodeParser.ScanStatementContext context)
+    public override object VisitScanStatement([NotNull] CodeParser.ScanStatementContext context)
     {
         var input = Console.ReadLine();
         var inputs = input!.Split(',').Select(s => s.Trim()).ToArray();
@@ -502,42 +507,42 @@ public class CodeVisitor : CodeBaseVisitor<object>
         }
 
         return new object();
-    }*/
-    public override object VisitScanStatement([NotNull] CodeParser.ScanStatementContext context)
-    {
-        var identifier = context.IDENTIFIER();
-        foreach (var i in identifier)
-        {
-            var input = Console.ReadLine();
-
-            if (Variables.ContainsKey(i.GetText()))
-            {
-                if (input != null)
-                {
-                    var variableType = GetTypeFromString(Variables[i.GetText()].GetType().Name.ToUpper());
-                    var inputValue = ParseInput(input, variableType);
-
-                    if (inputValue == null)
-                    {
-                        throw new ArgumentException($"Input value {input} is not of the expected type {variableType}");
-                    }
-
-                    Variables[i.GetText()] = inputValue;
-                }
-                else
-                {
-                    throw new ArgumentNullException($"Inputted value is null");
-                }
-
-            }
-            else
-            {
-                Console.WriteLine($"Variable {i.GetText()} not declared.");
-            }
-        }
-
-        return new object();
     }
+    //public override object VisitScanStatement([NotNull] CodeParser.ScanStatementContext context)
+    //{
+    //    var identifier = context.IDENTIFIER();
+    //    foreach (var i in identifier)
+    //    {
+    //        var input = Console.ReadLine();
+
+    //        if (Variables.ContainsKey(i.GetText()))
+    //        {
+    //            if (input != null)
+    //            {
+    //                var variableType = GetTypeFromString(Variables[i.GetText()].GetType().Name.ToUpper());
+    //                var inputValue = ParseInput(input, variableType);
+
+    //                if (inputValue == null)
+    //                {
+    //                    throw new ArgumentException($"Input value {input} is not of the expected type {variableType}");
+    //                }
+
+    //                Variables[i.GetText()] = inputValue;
+    //            }
+    //            else
+    //            {
+    //                throw new ArgumentNullException($"Inputted value is null");
+    //            }
+
+    //        }
+    //        else
+    //        {
+    //            Console.WriteLine($"Variable {i.GetText()} not declared.");
+    //        }
+    //    }
+
+    //    return new object();
+    //}
 
     private object ParseInput(string input, Type type)
     {

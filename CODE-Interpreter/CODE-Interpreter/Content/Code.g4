@@ -2,7 +2,7 @@ grammar Code;
 
 // Lexical rules
 
-SCAN : 'SCAN: ';  
+SCAN : 'SCAN';  
 DISPLAY : 'DISPLAY';
 
 IF : 'IF';
@@ -61,13 +61,10 @@ NEWLINE: '\r' '\n' | '\r';
 
 // Parser rules
 
-program : NEWLINE* BEGIN NEWLINE statement* NEWLINE END;
+program : NEWLINE? BEGIN NEWLINE (declaration | variableAssignment | variable)* statement* NEWLINE END;
 line: (declaration | statement | COMMENT) NEWLINE;
 
-statement : declaration
-          | variable
-          | variableAssignment
-          | assignmentStatement
+statement : assignmentStatement
           | displayStatement
           | scanStatement
           | ifStatement
@@ -77,12 +74,12 @@ statement : declaration
           | COMMENT
           ;
 
-declaration : NEWLINE* dataType IDENTIFIER (ASSIGN expression)? (COMMA IDENTIFIER (ASSIGN expression)?)*; // INT x , y , z = 5
-variableAssignment : NEWLINE* dataType IDENTIFIER (ASSIGN (expression))?; // INT x = 5
-variable: NEWLINE* dataType IDENTIFIER NEWLINE*; // INT x 
-variableDeclaration : declaration* NEWLINE*;
+declaration : NEWLINE? dataType IDENTIFIER (ASSIGN expression)? (COMMA IDENTIFIER (ASSIGN expression)?)*; // INT x , y , z = 5
+variableAssignment : NEWLINE? dataType IDENTIFIER (ASSIGN (expression))?; // INT x = 5
+variable: NEWLINE? dataType IDENTIFIER NEWLINE?; // INT x 
+variableDeclaration : declaration* NEWLINE?;
 
-assignmentStatement : NEWLINE* IDENTIFIER (ASSIGN IDENTIFIER)* ASSIGN expression NEWLINE*; // x = y = z 
+assignmentStatement : NEWLINE? IDENTIFIER (ASSIGN IDENTIFIER)* ASSIGN expression NEWLINE?; // x = y = z 
 
 dataType : INT_TYPE | CHAR_TYPE | BOOL_TYPE | FLOAT_TYPE | STRING_TYPE;
 
@@ -93,27 +90,27 @@ literal :  INT_LITERAL
         |  STRING_LITERAL
         ;
         
-displayStatement : NEWLINE* DISPLAY':' expression NEWLINE*;
-scanStatement : NEWLINE* SCAN ':' IDENTIFIER (COMMA IDENTIFIER)* NEWLINE*;
-ifStatement : NEWLINE* IF expression NEWLINE BEGIN_IF NEWLINE statement* NEWLINE END_IF (elseIfBlock)* (elseBlock)?;
-whileStatement: NEWLINE* WHILE expression RPAREN NEWLINE BEGIN_WHILE NEWLINE statement* NEWLINE END_WHILE;
-elseIfBlock : NEWLINE* ELSE_IF expression NEWLINE BEGIN_IF NEWLINE statement* NEWLINE END_IF;
-elseBlock: NEWLINE* ELSE NEWLINE BEGIN_IF NEWLINE statement* NEWLINE END_IF;
-switchStatement : NEWLINE* 'SWITCH' expression NEWLINE
+displayStatement : NEWLINE? DISPLAY':' expression NEWLINE?;
+scanStatement : NEWLINE? SCAN ':' IDENTIFIER (COMMA IDENTIFIER)* NEWLINE?;
+ifStatement : NEWLINE? IF expression NEWLINE BEGIN_IF NEWLINE statement* NEWLINE END_IF (elseIfBlock)* (elseBlock)?;
+whileStatement: NEWLINE? WHILE expression RPAREN NEWLINE BEGIN_WHILE NEWLINE statement* NEWLINE END_WHILE;
+elseIfBlock : NEWLINE? ELSE_IF expression NEWLINE BEGIN_IF NEWLINE statement* NEWLINE END_IF;
+elseBlock: NEWLINE? ELSE NEWLINE BEGIN_IF NEWLINE statement* NEWLINE END_IF;
+switchStatement : NEWLINE? 'SWITCH' expression NEWLINE
                  'BEGIN SWITCH' NEWLINE
                  (caseBlock)+
                  defaultBlock?
-                 NEWLINE* 'END SWITCH'
+                 NEWLINE? 'END SWITCH'
                  ;
 
-caseBlock : 'CASE' expression ':' statement* 'BREAK' NEWLINE*;
+caseBlock : 'CASE' expression ':' statement* 'BREAK' NEWLINE?;
 
-defaultBlock : 'DEFAULT' ':' statement* 'BREAK' NEWLINE*;
+defaultBlock : 'DEFAULT' ':' statement* 'BREAK' NEWLINE?;
 
-forStatement : NEWLINE* 'FOR' LPAREN statement ':' expression ':' assignmentStatement RPAREN NEWLINE
+forStatement : NEWLINE? 'FOR' LPAREN statement ':' expression ':' assignmentStatement RPAREN NEWLINE
 			  'BEGIN FOR' NEWLINE
 			  line*
-			  NEWLINE* 'END FOR'
+			  NEWLINE? 'END FOR'
 			  ;
 
 expression : unaryOP expression                     #unaryExpression

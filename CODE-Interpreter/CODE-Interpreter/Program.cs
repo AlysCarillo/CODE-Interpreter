@@ -4,6 +4,7 @@ using CODE_Interpreter.Content;
 using CODE_Interpreter;
 using CODE_Interpreter.ErrorHandling;
 using System;
+using CODE_Interpreter.Methods;
 
 bool isContinue = true;
 
@@ -19,9 +20,9 @@ while (isContinue)
     var tokens = new CommonTokenStream(lexer);
     var parser = new CodeParser(tokens);
 
-    //// Error Handling
-    //var syntaxHandler = new SyntaxHandler();
-    //parser.AddErrorListener(syntaxHandler);
+    // Error Handling
+    var syntaxHandler = new ErrorHandling();
+    parser.AddErrorListener(syntaxHandler);
 
     var codeContext = parser.program();
 
