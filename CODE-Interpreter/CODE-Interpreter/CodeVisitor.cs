@@ -14,6 +14,7 @@ using CODE_Interpreter.Functions;
 public class CodeVisitor : CodeBaseVisitor<object>
 {
     private Dictionary<string, object> Variables = new Dictionary<string, object>();
+    private Dictionary<string, object> DataTypes = new Dictionary<string, object>();
     private Operators op = new Operators();
 
     //public override object VisitProgram([NotNull] CodeParser.ProgramContext context)
@@ -92,11 +93,12 @@ public class CodeVisitor : CodeBaseVisitor<object>
 
     public override List<object?> VisitDeclaration([NotNull] CodeParser.DeclarationContext context)
     {
-        var type = context.dataType().GetText();
+        var type = context.dataType();
+        var typeStr = type.GetText();
         var varnames = context.IDENTIFIER();
 
         // remove type
-        var contextValue = context.GetText().Replace(type, "");
+        var contextValue = context.GetText().Replace(typeStr, "");
 
         var contextArray = contextValue.Split(',');
         var exp = context.expression();
@@ -115,12 +117,14 @@ public class CodeVisitor : CodeBaseVisitor<object>
                 if (expctr < exp.Count())
                 {
                     Variables[varnames[x].GetText()] = Visit(exp[expctr]);
+                    DataTypes[varnames[x].GetText()] = VisitDataType(type);
                     expctr++;
                 }
             }
             else
             {
                 Variables[varnames[x].GetText()] = new object();
+                DataTypes[varnames[x].GetText()] = VisitDataType(type);
             }
 
         }
@@ -153,29 +157,29 @@ public class CodeVisitor : CodeBaseVisitor<object>
 
     public override object VisitDataType(CodeParser.DataTypeContext context)
     {
-        if (context.INT_TYPE() != null)
+        if (context.GetText() == "INT")
         {
             // Handle integer data type
-            return typeof(int);
+            return "INT";
         }
-        else if (context.CHAR_TYPE() != null)
+        else if (context.GetText() == "CHAR")
         {
             // Handle character data type
-            return typeof(char);
+            return "CHAR";
         }
-        else if (context.BOOL_TYPE() != null)
+        else if (context.GetText() == "BOOL")
         {
             // Handle boolean data type
-            return typeof(bool);
+            return "BOOL";
         }
-        else if (context.FLOAT_TYPE() != null)
+        else if (context.GetText() == "FLOAT")
         {
             // Handle float data type
-            return typeof(float);
+            return "FLOAT";
         }
-        else if (context.STRING_TYPE() != null)
+        else if (context.GetText() == "STRING")
         {
-            return typeof(string);
+            return "STRING";
         }
         else
         {
@@ -445,42 +449,42 @@ public class CodeVisitor : CodeBaseVisitor<object>
         return context.ESCAPE().GetText()[1];
     }
 
-    public override object VisitIfStatement([NotNull] CodeParser.IfStatementContext context)
-    {
-        var condition = (bool)(Visit(context.expression()));
+    //public override object VisitIfStatement([NotNull] CodeParser.IfStatementContext context)
+    //{
+    //    var condition = (bool)(Visit(context.expression()));
 
-        if (condition)
-        {
-            // Execute the statements inside the if block
-            foreach (var statement in context.statement())
-            {
-                VisitStatement(statement);
-            }
-        }
-        else if (context.elseIfBlock() != null)
-        {
-            foreach (var elseIfBlock in context.elseIfBlock())
-            {
-                var elseIfCondition = (bool)Visit(elseIfBlock.expression());
-                if (elseIfCondition)
-                {
-                    foreach (var statement in elseIfBlock.statement())
-                    {
-                        VisitStatement(statement);
-                    }
-                    return new object();
-                }
-            }
-        }
-        else if (context.elseBlock() != null)
-        {
-            foreach (var statement in context.elseBlock().statement())
-            {
-                VisitStatement(statement);
-            }
-        }
-        return new object();
-    }
+    //    if (condition)
+    //    {
+    //        // Execute the statements inside the if block
+    //        foreach (var statement in context.statement())
+    //        {
+    //            VisitStatement(statement);
+    //        }
+    //    }
+    //    else if (context.elseIfBlock() != null)
+    //    {
+    //        foreach (var elseIfBlock in context.elseIfBlock())
+    //        {
+    //            var elseIfCondition = (bool)Visit(elseIfBlock.expression());
+    //            if (elseIfCondition)
+    //            {
+    //                foreach (var statement in elseIfBlock.statement())
+    //                {
+    //                    VisitStatement(statement);
+    //                }
+    //                return new object();
+    //            }
+    //        }
+    //    }
+    //    else if (context.elseBlock() != null)
+    //    {
+    //        foreach (var statement in context.elseBlock().statement())
+    //        {
+    //            VisitStatement(statement);
+    //        }
+    //    }
+    //    return new object();
+    //}
 
     public override object VisitSwitchStatement([NotNull] CodeParser.SwitchStatementContext context)
     {
