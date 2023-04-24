@@ -52,7 +52,7 @@ IDENTIFIER : [a-zA-Z_] [a-zA-Z0-9_]*;
 INT_LITERAL : [0-9]+;
 FLOAT_LITERAL : [0-9]+ DOT [0-9]+;
 CHAR_LITERAL : '\'' ~('\''|'\\') '\'';
-BOOL_LITERAL : TRUE | FALSE;
+BOOL_LITERAL : ('"'TRUE'"') | ('"'FALSE'"');
 STRING_LITERAL : ('"' ~'"'* '"') | ('\'' ~'\''* '\'');
 
 WHITESPACE : [ \t\r\n] -> skip;
