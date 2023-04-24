@@ -1,3 +1,6 @@
 BEGIN CODE
-	BOOL d=FALSE 
+	FLOAT x
+	INT y
+	SCAN: x, y
+	DISPLAY: x & $ & y
 END CODE
