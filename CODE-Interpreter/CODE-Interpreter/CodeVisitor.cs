@@ -446,7 +446,28 @@ public class CodeVisitor : CodeBaseVisitor<object>
 
     public override object VisitIfStatement([NotNull] CodeParser.IfStatementContext context)
     {
-        var condition = (bool)(Visit(context.expression()));
+        CodeParser.ConditionBlockContext[] conditions = context.conditionBlock();
+
+        bool evaluated = false;
+
+        foreach (CodeParser.ConditionBlockContext conditionBlock in conditions)
+        {
+            var conditionExpression = Visit(conditionBlock.expression());
+
+            if (bool.Parse(conditionExpression.ToString()!) == true)
+            {
+                evaluated = true;
+                Visit(conditionBlock.ifBlock());
+                break;
+            }
+
+            if (!evaluated && context.ifBlock() != null)
+            {
+                Visit(context.ifBlock());
+            }
+
+        }
+        /*var condition = (bool)(Visit(context.expression()));
 
         if (condition)
         {
@@ -477,7 +498,7 @@ public class CodeVisitor : CodeBaseVisitor<object>
             {
                 VisitStatement(statement);
             }
-        }
+        }*/
         return new object();
     }
 

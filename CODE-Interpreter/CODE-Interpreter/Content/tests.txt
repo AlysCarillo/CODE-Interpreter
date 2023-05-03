@@ -1,4 +1,19 @@
 BEGIN CODE
-INT a = 5, b 
-STRING c = "hello"
+INT a = 5
+IF (a > 2)
+BEGIN IF
+	DISPLAY: a & " is greater than 2" & $
+	IF (a + 1 == 5)
+	BEGIN IF
+		DISPLAY: "a is equal to 4"
+	END IF
+	ELSE IF (a == 5)
+	BEGIN IF
+		DISPLAY: "a is equal to 5"
+	END IF
+	ELSE
+	BEGIN IF
+		DISPLAY: "a is not equal to 4"
+	END IF
+END IF
 END CODE
