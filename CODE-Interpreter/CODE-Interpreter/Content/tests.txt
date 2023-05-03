@@ -1,4 +1,30 @@
 BEGIN CODE
-INT a = 5, b 
-STRING c = "hello"
+ INT a
+ CHAR e = 'E'
+ CHAR o = 'O'
+ CHAR p = 'p'
+ CHAR n = 'n'
+ SCAN: a
+ IF(a>0)
+   BEGIN IF
+     IF(a%2==0)
+       BEGIN IF
+	DISPLAY: p & e
+       END IF
+     ELSE
+       BEGIN IF
+	DISPLAY: p & o
+       END IF
+ END IF
+ELSE
+ BEGIN IF
+     IF(a%2==0)
+       BEGIN IF
+	DISPLAY: n & e
+       END IF
+     ELSE
+       BEGIN IF
+	DISPLAY: n & o
+       END IF
+ END IF
 END CODE

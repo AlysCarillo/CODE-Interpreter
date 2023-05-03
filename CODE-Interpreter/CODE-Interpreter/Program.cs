@@ -34,7 +34,7 @@ while (isContinue)
     Console.WriteLine("Continue? (Y/N): ");
     var res = Console.ReadLine()![0];
 
-    isContinue = (res != 'Y' || res != 'y') ? false : true;
+    isContinue = (res == 'Y' || res == 'y') ? true : false;
 
     Console.WriteLine("=================================================================================");
     Console.WriteLine("\n");

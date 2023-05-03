@@ -92,10 +92,13 @@ literal :  INT_LITERAL
         
 displayStatement : NEWLINE? DISPLAY':' expression NEWLINE?;
 scanStatement : NEWLINE? SCAN ':' IDENTIFIER (COMMA IDENTIFIER)* NEWLINE?;
-ifStatement : NEWLINE? IF expression NEWLINE BEGIN_IF NEWLINE statement* NEWLINE END_IF (elseIfBlock)* (elseBlock)?;
-whileStatement: NEWLINE? WHILE expression RPAREN NEWLINE BEGIN_WHILE NEWLINE statement* NEWLINE END_WHILE;
+
+ifStatement : NEWLINE? IF expression NEWLINE BEGIN_IF NEWLINE statement* NEWLINE END_IF elseIfBlock* elseBlock?;
 elseIfBlock : NEWLINE? ELSE_IF expression NEWLINE BEGIN_IF NEWLINE statement* NEWLINE END_IF;
 elseBlock: NEWLINE? ELSE NEWLINE BEGIN_IF NEWLINE statement* NEWLINE END_IF;
+
+whileStatement: NEWLINE? WHILE expression NEWLINE BEGIN_WHILE NEWLINE statement* NEWLINE END_WHILE;
+
 switchStatement : NEWLINE? 'SWITCH' expression NEWLINE
                  'BEGIN SWITCH' NEWLINE
                  (caseBlock)+

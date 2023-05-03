@@ -206,7 +206,7 @@ public class CodeVisitor : CodeBaseVisitor<object>
         if (exp is bool b)
             exp = b.ToString().ToUpper();
 
-        Console.Write(exp + " ");
+        Console.Write(exp);
 
         return new object();
     }
@@ -431,7 +431,7 @@ public class CodeVisitor : CodeBaseVisitor<object>
             }
             catch (Exception e)
             {
-                Console.WriteLine($"TYPE MISMATCH: Cannot assign {input} to variable {idName} of type {variableType}");
+                Console.WriteLine($"TYPE MISMATCH: Cannot assign {input} to variable {idName} of type {variableType?.Name}");
                 Environment.Exit(400);
             }
 
@@ -455,29 +455,32 @@ public class CodeVisitor : CodeBaseVisitor<object>
             {
                 VisitStatement(statement);
             }
+            return new object();
         }
-        else if (context.elseIfBlock() != null)
+
+        foreach (var elseIfBlock in context.elseIfBlock())
         {
-            foreach (var elseIfBlock in context.elseIfBlock())
+            var elseIfCondition = (bool)Visit(elseIfBlock.expression());
+            if (elseIfCondition)
             {
-                var elseIfCondition = (bool)Visit(elseIfBlock.expression());
-                if (elseIfCondition)
+                foreach (var statement in elseIfBlock.statement())
                 {
-                    foreach (var statement in elseIfBlock.statement())
-                    {
-                        VisitStatement(statement);
-                    }
-                    return new object();
+                    VisitStatement(statement);
                 }
+                return new object();
             }
         }
-        else if (context.elseBlock() != null)
+
+        if(context.elseBlock() != null)
         {
             foreach (var statement in context.elseBlock().statement())
             {
                 VisitStatement(statement);
+                return new object();
             }
         }
+        
+        
         return new object();
     }
 
