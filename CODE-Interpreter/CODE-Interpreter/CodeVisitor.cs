@@ -9,28 +9,6 @@ public class CodeVisitor : CodeBaseVisitor<object>
     private Dictionary<string, object> DataTypes = new Dictionary<string, object>();
     private Operators op = new Operators();
 
-    //public override object VisitProgram([NotNull] CodeParser.ProgramContext context)
-    //{
-    //    string code = context.GetText().Trim();
-
-    //    if (code.StartsWith("BEGIN CODE") && code.EndsWith("END CODE"))
-    //    {
-    //        Console.WriteLine("");
-    //    }
-    //    else
-    //    {
-    //        Console.WriteLine("Code must start with 'BEGIN CODE' and end with 'END CODE'.");
-    //        throw new ArgumentException("Code must start with 'BEGIN CODE' and end with 'END CODE'.");
-    //    }
-
-    //    // Visit all statements next
-    //    foreach (var statement in context.statement())
-    //    {
-    //        VisitStatement(statement);
-    //    }
-    //    return new object();
-    //}
-
     public override object VisitStatement([NotNull] CodeParser.StatementContext context)
     {
         if (context.assignmentStatement() != null)
@@ -165,6 +143,7 @@ public class CodeVisitor : CodeBaseVisitor<object>
         }
         else if (context.STRING_TYPE() != null)
         {
+            // Handle string data type
             return typeof(string);
         }
         else
@@ -226,9 +205,6 @@ public class CodeVisitor : CodeBaseVisitor<object>
         else if (context.STRING_LITERAL() != null)
         {
             return context.STRING_LITERAL().GetText()[1..^1];
-            //// Remove the enclosing double quotes and escape sequences
-            //text = text.Substring(1, text.Length - 2).Replace("\\\\", "\\").Replace("\\\"", "\"");
-            //return text;
         }
         else
         {
@@ -310,7 +286,6 @@ public class CodeVisitor : CodeBaseVisitor<object>
         else
         {
             Console.WriteLine($"SYNTAX ERROR: Variable {identifier} is not declared");
-            //throw new Exception($"Variable {identifier} is not declared");
             Environment.Exit(400);
         }
         return new object();
@@ -470,7 +445,6 @@ public class CodeVisitor : CodeBaseVisitor<object>
                 return new object();
             }
         }
-        
         
         return new object();
     }

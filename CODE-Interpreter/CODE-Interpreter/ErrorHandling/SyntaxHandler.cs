@@ -10,6 +10,5 @@ namespace CODE_Interpreter.Methods
             Console.WriteLine($"{errorType} at line {line}: {msg}");
             Environment.Exit(400);
         }
-
     }
 }
