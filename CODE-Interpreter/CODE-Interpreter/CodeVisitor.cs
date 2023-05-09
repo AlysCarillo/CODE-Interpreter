@@ -1,14 +1,5 @@
 using Antlr4.Runtime.Misc;
 using CODE_Interpreter.Content;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq.Expressions;
-using System.Xml.Linq;
-using System.Text.RegularExpressions;
-using static Antlr4.Runtime.Atn.SemanticContext;
-using System.Text;
-using System.Reflection.Metadata.Ecma335;
 using CODE_Interpreter.Functions;
 using CODE_Interpreter.ErrorHandling;
 

@@ -1,9 +1,5 @@
 ﻿using Antlr4.Runtime;
-using Antlr4.Runtime.Misc;
 using CODE_Interpreter.Content;
-using CODE_Interpreter;
-using CODE_Interpreter.ErrorHandling;
-using System;
 using CODE_Interpreter.Methods;
 
 bool isContinue = true;
@@ -38,7 +34,4 @@ while (isContinue)
 
     Console.WriteLine("=================================================================================");
     Console.WriteLine("\n");
-
 }
-
-
