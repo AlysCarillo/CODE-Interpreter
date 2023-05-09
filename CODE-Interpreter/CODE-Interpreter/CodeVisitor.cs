@@ -1,42 +1,13 @@
 using Antlr4.Runtime.Misc;
 using CODE_Interpreter.Content;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq.Expressions;
-using System.Xml.Linq;
-using System.Text.RegularExpressions;
-using static Antlr4.Runtime.Atn.SemanticContext;
-using System.Text;
-using System.Reflection.Metadata.Ecma335;
 using CODE_Interpreter.Functions;
+using CODE_Interpreter.ErrorHandling;
 
 public class CodeVisitor : CodeBaseVisitor<object>
 {
     private Dictionary<string, object> Variables = new Dictionary<string, object>();
+    private Dictionary<string, object> DataTypes = new Dictionary<string, object>();
     private Operators op = new Operators();
-
-    //public override object VisitProgram([NotNull] CodeParser.ProgramContext context)
-    //{
-    //    string code = context.GetText().Trim();
-
-    //    if (code.StartsWith("BEGIN CODE") && code.EndsWith("END CODE"))
-    //    {
-    //        Console.WriteLine("");
-    //    }
-    //    else
-    //    {
-    //        Console.WriteLine("Code must start with 'BEGIN CODE' and end with 'END CODE'.");
-    //        throw new ArgumentException("Code must start with 'BEGIN CODE' and end with 'END CODE'.");
-    //    }
-
-    //    // Visit all statements next
-    //    foreach (var statement in context.statement())
-    //    {
-    //        VisitStatement(statement);
-    //    }
-    //    return new object();
-    //}
 
     public override object VisitStatement([NotNull] CodeParser.StatementContext context)
     {
@@ -47,18 +18,6 @@ public class CodeVisitor : CodeBaseVisitor<object>
         else if (context.displayStatement() != null)
         {
             return VisitDisplayStatement(context.displayStatement());
-        }
-        else if (context.variableAssignment() != null)
-        {
-            return VisitVariableAssignment(context.variableAssignment());
-        }
-        else if (context.declaration() != null)
-        {
-            return VisitDeclaration(context.declaration());
-        }
-        else if (context.variable() != null)
-        {
-            return VisitVariable(context.variable());
         }
         else if (context.scanStatement() != null)
         {
@@ -90,61 +49,25 @@ public class CodeVisitor : CodeBaseVisitor<object>
         }
     }
 
-    /*public override List<object?> VisitDeclaration([NotNull] CodeParser.DeclarationContext context)
-    {
-        var type = context.dataType().GetText();
-        var varnames = context.IDENTIFIER();
-
-        // remove type
-        var contextValue = context.GetText().Replace(type, "");
-
-        var contextArray = contextValue.Split(',');
-        var exp = context.expression();
-        int expctr = 0;
-
-        // traverse each part
-        for (int x = 0; x < contextArray.Length; x++)
-        {
-            if (Variables.ContainsKey(varnames[x].GetText()))
-            {
-                Console.WriteLine(varnames[x].GetText() + "is already declared");
-                continue;
-            }
-            if (contextArray[x].Contains('='))
-            {
-                if (expctr < exp.Count())
-                {
-                    Variables[varnames[x].GetText()] = Visit(exp[expctr]);
-                    expctr++;
-                }
-            }
-            else
-            {
-                Variables[varnames[x].GetText()] = new object();
-            }
-
-        }
-
-        return new List<object?>();
-    }*/
     public override List<object?> VisitDeclaration([NotNull] CodeParser.DeclarationContext context)
     {
-        var type = context.dataType().GetText();
+        var type = Visit(context.dataType());
+        var typeStr = context.dataType().GetText();
         var varnames = context.IDENTIFIER();
 
         // remove type
-        var contextValue = context.GetText().Replace(type, "");
+        var contextValue = context.GetText().Replace(typeStr, "");
 
         var contextArray = contextValue.Split(',');
         var exp = context.expression();
         int expctr = 0;
 
-        // traverse each part
+        //traverse each part
         for (int x = 0; x < contextArray.Length; x++)
         {
             if (Variables.ContainsKey(varnames[x].GetText()))
             {
-                Console.WriteLine(varnames[x].GetText() + "is already declared");
+                Console.WriteLine(varnames[x].GetText() + " is already declared");
                 continue;
             }
 
@@ -152,46 +75,25 @@ public class CodeVisitor : CodeBaseVisitor<object>
             {
                 if (expctr < exp.Count())
                 {
-                    var expressionValue = Visit(exp[expctr]);
-
-                    if (expressionValue.GetType() != GetTypeFromString(type))
+                    // check type
+                    if (ErrorHandler.HandleTypeError(context, Visit(exp[expctr]), (Type?)type, "Variable Declaration"))
                     {
-                        Console.WriteLine($"Type mismatch: Cannot assign {expressionValue} to variable {varnames[x].GetText()} of type {type}");
-                        //throw new ArgumentException($"Type mismatch: Cannot assign {expressionValue} to variable {varnames[x].GetText()} of type {type}");
-                        Environment.Exit(400);
+                        Variables[varnames[x].GetText()] = Visit(exp[expctr]);
+                        DataTypes[varnames[x].GetText()] = type;
                     }
 
-                    Variables[varnames[x].GetText()] = expressionValue;
                     expctr++;
                 }
             }
             else
             {
                 Variables[varnames[x].GetText()] = new object();
+                DataTypes[varnames[x].GetText()] = type;
             }
 
         }
 
         return new List<object?>();
-    }
-
-    private Type GetTypeFromString(string type)
-    {
-        switch (type)
-        {
-            case "INT":
-                return typeof(int);
-            case "CHAR":
-                return typeof(char);
-            case "BOOL":
-                return typeof(bool);
-            case "FLOAT":
-                return typeof(float);
-            case "STRING":
-                return typeof(string);
-            default:
-                throw new ArgumentException("Invalid data type");
-        }
     }
 
     public override object VisitVariable([NotNull] CodeParser.VariableContext context)
@@ -199,7 +101,7 @@ public class CodeVisitor : CodeBaseVisitor<object>
         var dataType = context.dataType().GetText();
         var varName = context.IDENTIFIER().GetText();
 
-        return Variables[varName] = new object();
+        return (Variables[varName] = new object(), DataTypes[varName] = dataType);
     }
 
     public override object VisitVariableAssignment([NotNull] CodeParser.VariableAssignmentContext context)
@@ -214,7 +116,7 @@ public class CodeVisitor : CodeBaseVisitor<object>
             return new object();
         }
 
-        return Variables[varName] = exp;
+        return (Variables[varName] = exp, DataTypes[varName] = type);
     }
 
     public override object VisitDataType(CodeParser.DataTypeContext context)
@@ -241,6 +143,7 @@ public class CodeVisitor : CodeBaseVisitor<object>
         }
         else if (context.STRING_TYPE() != null)
         {
+            // Handle string data type
             return typeof(string);
         }
         else
@@ -256,7 +159,11 @@ public class CodeVisitor : CodeBaseVisitor<object>
         foreach (var i in identifier)
         {
             var expression = context.expression().Accept(this);
-            Variables[i.GetText()] = expression;
+            // check type
+            if (ErrorHandler.HandleTypeError(context, expression, (Type?)DataTypes[i.GetText()], "Variable Assignment"))
+            {
+                Variables[i.GetText()] = expression;
+            }
         }
 
         return new object();
@@ -269,7 +176,7 @@ public class CodeVisitor : CodeBaseVisitor<object>
         if (exp is bool b)
             exp = b.ToString().ToUpper();
 
-        Console.Write(exp + " ");
+        Console.Write(exp);
 
         return new object();
     }
@@ -291,16 +198,13 @@ public class CodeVisitor : CodeBaseVisitor<object>
         {
             return float.Parse(context.FLOAT_LITERAL().GetText());
         }
-        else if (context.STRING_LITERAL() != null)
-        {
-            string text = context.STRING_LITERAL().GetText();
-            // Remove the enclosing double quotes and escape sequences
-            text = text.Substring(1, text.Length - 2).Replace("\\\\", "\\").Replace("\\\"", "\"");
-            return text;
-        }
         else if (context.BOOL_LITERAL() != null)
         {
-            return bool.Parse(context.BOOL_LITERAL().GetText());
+            return bool.Parse(context.BOOL_LITERAL().GetText()).Equals("\"TRUE\"");
+        }
+        else if (context.STRING_LITERAL() != null)
+        {
+            return context.STRING_LITERAL().GetText()[1..^1];
         }
         else
         {
@@ -327,7 +231,7 @@ public class CodeVisitor : CodeBaseVisitor<object>
         }
         else if (context.literal().BOOL_LITERAL() is { } b)
         {
-            return bool.Parse(b.GetText().ToString().ToUpper());
+            return b.GetText().Equals("\"TRUE\"");
         }
         else if (context.literal().STRING_LITERAL() is { } s)
         {
@@ -381,8 +285,10 @@ public class CodeVisitor : CodeBaseVisitor<object>
         }
         else
         {
-            throw new Exception($"Variable {identifier} is not declared");
+            Console.WriteLine($"SYNTAX ERROR: Variable {identifier} is not declared");
+            Environment.Exit(400);
         }
+        return new object();
     }
 
     public override object VisitNewlineExpression([NotNull] CodeParser.NewlineExpressionContext context)
@@ -462,14 +368,15 @@ public class CodeVisitor : CodeBaseVisitor<object>
         return Visit(context.expression());
     }
 
-    /*public override object VisitScanStatement([NotNull] CodeParser.ScanStatementContext context)
+    public override object VisitScanStatement([NotNull] CodeParser.ScanStatementContext context)
     {
         var input = Console.ReadLine();
         var inputs = input!.Split(',').Select(s => s.Trim()).ToArray();
 
         if (inputs.Length < 1 || inputs.Length > context.IDENTIFIER().Length)
         {
-            throw new ArgumentException($"Invalid number of inputs. Expected between 1 and {context.IDENTIFIER().Length}, but got {inputs.Length}.");
+            Console.WriteLine($"Invalid number of inputs. Expected {context.IDENTIFIER().Length}, but got {inputs.Length}.");
+            Environment.Exit(400);
         }
 
         for (int i = 0; i < inputs.Length; i++)
@@ -477,105 +384,24 @@ public class CodeVisitor : CodeBaseVisitor<object>
             var idName = context.IDENTIFIER(i).GetText();
             if (!Variables.ContainsKey(idName))
             {
-                throw new ArgumentException($"Variable '{idName}' has not been declared.");
+                Console.WriteLine($"SYNTAX ERROR: Variable {idName} is not declared");
+                Environment.Exit(400);
             }
 
-            var inputValue = inputs[i];
-            if (int.TryParse(inputValue, out int intValue))
+            Type? variableType = (Type?)DataTypes[idName];
+
+            try
             {
-                Variables[idName] = intValue;
+                object? convertedValue = Convert.ChangeType(input, variableType!);
+                return Variables[idName] = convertedValue;
             }
-            else if (float.TryParse(inputValue, out float floatValue))
+            catch (Exception e)
             {
-                Variables[idName] = floatValue;
+                Console.WriteLine($"TYPE MISMATCH: Cannot assign {input} to variable {idName} of type {variableType?.Name}");
+                Environment.Exit(400);
             }
-            else if (char.TryParse(inputValue, out char charValue))
-            {
-                Variables[idName] = charValue;
-            }
-            else if (inputValue != null)
-            {
-                Variables[idName] = inputValue;
-            }
-            else
-            {
-                throw new ArgumentException($"Invalid input for variable {idName}");
-            }
+
         }
-
-        return new object();
-    }*/
-    public override object VisitScanStatement([NotNull] CodeParser.ScanStatementContext context)
-    {
-        var identifier = context.IDENTIFIER();
-        foreach (var i in identifier)
-        {
-            var input = Console.ReadLine();
-
-            if (Variables.ContainsKey(i.GetText()))
-            {
-                if (input != null)
-                {
-                    var variableType = GetTypeFromString(Variables[i.GetText()].GetType().Name.ToUpper());
-                    var inputValue = ParseInput(input, variableType);
-
-                    if (inputValue == null)
-                    {
-                        throw new ArgumentException($"Input value {input} is not of the expected type {variableType}");
-                    }
-
-                    Variables[i.GetText()] = inputValue;
-                }
-                else
-                {
-                    throw new ArgumentNullException($"Inputted value is null");
-                }
-   
-            }
-            else
-            {
-                Console.WriteLine($"Variable {i.GetText()} not declared.");
-            }
-        }
-
-        return new object();
-    }
-
-    private object ParseInput(string input, Type type)
-    {
-        if (type == typeof(int))
-        {
-            if (int.TryParse(input, out int result))
-            {
-                return result;
-            }
-        }
-        else if (type == typeof(char))
-        {
-            if (char.TryParse(input, out char result))
-            {
-                return result;
-            }
-        }
-        else if (type == typeof(bool))
-        {
-            if (bool.TryParse(input, out bool result))
-            {
-                return result;
-            }
-        }
-        else if (type == typeof(float))
-        {
-            if (float.TryParse(input, out float result))
-            {
-                return result;
-            }
-        }
-        else if (type == typeof(string))
-        {
-            return input;
-        }
-
         return new object();
     }
 
@@ -595,29 +421,31 @@ public class CodeVisitor : CodeBaseVisitor<object>
             {
                 VisitStatement(statement);
             }
+            return new object();
         }
-        else if (context.elseIfBlock() != null)
+
+        foreach (var elseIfBlock in context.elseIfBlock())
         {
-            foreach (var elseIfBlock in context.elseIfBlock())
+            var elseIfCondition = (bool)Visit(elseIfBlock.expression());
+            if (elseIfCondition)
             {
-                var elseIfCondition = (bool)Visit(elseIfBlock.expression());
-                if (elseIfCondition)
+                foreach (var statement in elseIfBlock.statement())
                 {
-                    foreach (var statement in elseIfBlock.statement())
-                    {
-                        VisitStatement(statement);
-                    }
-                    return new object();
+                    VisitStatement(statement);
                 }
+                return new object();
             }
         }
-        else if (context.elseBlock() != null)
+
+        if(context.elseBlock() != null)
         {
             foreach (var statement in context.elseBlock().statement())
             {
                 VisitStatement(statement);
+                return new object();
             }
         }
+        
         return new object();
     }
 
