@@ -7,7 +7,6 @@ public class CodeVisitor : CodeBaseVisitor<object>
 {
     private Dictionary<string, object> Variables = new Dictionary<string, object>();
     private Dictionary<string, object> DataTypes = new Dictionary<string, object>();
-    private Operators op = new Operators();
 
     public override object VisitStatement([NotNull] CodeParser.StatementContext context)
     {
@@ -494,9 +493,22 @@ public class CodeVisitor : CodeBaseVisitor<object>
         // Evaluate the loop condition expression
         bool loopCondition = Convert.ToBoolean(Visit(conditionExpr));
 
+        // Flag to track if the loop has executed at least once
+        bool executedOnce = false;
+
         // Evaluate the condition expression and continue while it's true
         while (loopCondition)
         {
+            // Check if the loop has executed at least once
+            if (executedOnce)
+            {
+                Console.WriteLine("SYNTAX ERROR: Infinite loop");
+                break;
+            }
+
+            // Set the flag to indicate the loop has executed
+            executedOnce = true;
+
             // Evaluate the body of the for loop
             foreach (var line in lines)
             {
@@ -515,14 +527,27 @@ public class CodeVisitor : CodeBaseVisitor<object>
 
     public override object VisitWhileStatement([NotNull] CodeParser.WhileStatementContext context)
     {
+        int maxIterations = 1000; 
+        int iterationCount = 0; 
+
         while ((bool)Visit(context.expression()))
         {
+            iterationCount++;
+
+            // Check if the iteration count exceeds the maximum threshold
+            if (iterationCount > maxIterations)
+            {
+                Console.WriteLine("SYNTAX ERROR: Infinite loop");
+                break;
+            }
+
             // Execute the statements inside the while block
             foreach (var statement in context.statement())
             {
                 VisitStatement(statement);
             }
         }
+
         return new object();
     }
 }

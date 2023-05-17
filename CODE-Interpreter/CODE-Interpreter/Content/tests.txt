@@ -1,29 +1,14 @@
 BEGIN CODE
- INT a
- CHAR e = 'E'
- CHAR o = 'O'
- CHAR p = 'p'
- CHAR n = 'n'
- SCAN: a
- IF(a>0)
-   BEGIN IF
-     IF(a%2==0)
-       BEGIN IF
-	DISPLAY: p & e
-       END IF
-     ELSE
-       BEGIN IF
-	DISPLAY: p & o
-       END IF
- END IF
-ELSE
+ CHAR c='a'
+ INT b, i
+ IF(c=='a')
  BEGIN IF
-     IF(a%2==0)
-       BEGIN IF
-	DISPLAY: n & e
-       END IF
-     ELSE
-       BEGIN IF
-	DISPLAY: n & o
-       END IF
+  FOR(b = 1 : b < 10 : b = b + 1)
+   BEGIN FOR
+    IF(b%2 == 0)
+     BEGIN IF
+      DISPLAY: b
+     END IF
+   END FOR 
  END IF
+END CODE
